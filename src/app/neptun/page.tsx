@@ -50,10 +50,6 @@ export default function NeptunPage() {
         <main className="flex flex-col gap-6">
             <div className="flex justify-between items-center">
                 <h1 className="text-4xl font-bold">SZE Neptun</h1>
-                <div className="flex items-center gap-1 text-slate-300">
-                    <Icon.Authorized size={24} />
-                    <span className="text-sm">Bejelentkezve</span>
-                </div>
             </div>
 
             <div className="flex flex-col lg:w-3xl w-full mx-auto border border-slate-800 p-6 rounded-lg">

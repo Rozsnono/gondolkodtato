@@ -152,6 +152,11 @@ export const Icon = {
             <path d="M7 17a5.007 5.007 0 0 0 4.898-4H14v2h2v-2h2v3h2v-3h1v-2h-9.102A5.007 5.007 0 0 0 7 7c-2.757 0-5 2.243-5 5s2.243 5 5 5Zm0-8c1.654 0 3 1.346 3 3s-1.346 3-3 3-3-1.346-3-3 1.346-3 3-3Z"></path>
         </IconWrapper>
     ),
+    Load: ({ size, className, onlyStrokes, strokeWidth, onClick }: IconProps) => (
+        <IconWrapper size={size} className={className} onlyStrokes={onlyStrokes} strokeWidth={strokeWidth} onClick={onClick}>
+            <path d="M10 11H7.101l.001-.01a4.94 4.94 0 0 1 .752-1.786 5.054 5.054 0 0 1 2.2-1.811c.302-.128.617-.226.938-.291a5.078 5.078 0 0 1 2.018 0c.957.196 1.835.67 2.525 1.36l1.416-1.411a7.036 7.036 0 0 0-2.224-1.501 6.922 6.922 0 0 0-1.315-.408 7.079 7.079 0 0 0-2.819 0c-.451.092-.892.23-1.316.409a7.04 7.04 0 0 0-3.08 2.534 6.978 6.978 0 0 0-1.054 2.505c-.028.135-.043.273-.063.41H2l4 4 4-4Zm4 2h2.899l-.001.008a4.976 4.976 0 0 1-2.103 3.138 4.942 4.942 0 0 1-1.787.752 5.073 5.073 0 0 1-2.017 0 4.954 4.954 0 0 1-1.787-.752 5.069 5.069 0 0 1-.74-.61L7.05 16.95a7.031 7.031 0 0 0 2.225 1.5c.424.18.867.317 1.315.408.93.189 1.888.189 2.818 0a7.03 7.03 0 0 0 4.395-2.945 6.973 6.973 0 0 0 1.053-2.503c.027-.135.043-.273.063-.41H22l-4-4-4 4Z"></path>
+        </IconWrapper>
+    ),
     LogIn: ({ size, className, onlyStrokes, strokeWidth, onClick }: IconProps) => (
         <IconWrapper size={size} className={className} onlyStrokes={onlyStrokes} strokeWidth={strokeWidth} onClick={onClick}>
             <path d="m10.998 16 5-4-5-4v3h-9v2h9v3Z"></path>

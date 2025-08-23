@@ -7,7 +7,7 @@ import { useContext, useEffect, useRef, useState } from "react";
 
 export default function NeptunPage() {
 
-    const { neptun, setNeptun } = useContext(UserContext);
+    const { neptun, setNeptun, setSavedSubjects, savedSubjects } = useContext(UserContext);
     const router = useRouter();
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -20,6 +20,8 @@ export default function NeptunPage() {
         from: 0,
         to: 10
     });
+
+    const [plannedSubjects, setPlannedSubjects] = useState<any[]>([]);
 
     const [time, setTime] = useState(10000);
 
@@ -126,12 +128,78 @@ export default function NeptunPage() {
         getSubjects();
     }
 
+    function handleLoadMore() {
+        formRef.current = {
+            ...formRef.current,
+            to: formRef.current.to + 10
+        }
+
+        getSubjects();
+    }
+
+    function handleSubjectClick(subject: any, course: any) {
+        if (plannedSubjects.find(s => s.subjectId === subject.id)) {
+            if (plannedSubjects.find(s => s.subjectId === subject.id).courseIds.find(c => c.id === course.id)) {
+                const tmp = plannedSubjects.find(s => s.subjectId === subject.id);
+                const tmpArray = plannedSubjects.filter(s => s.subjectId !== subject.id);
+                if (tmp.courseIds.length === 1) {
+                    setPlannedSubjects([...tmpArray]);
+                } else {
+                    setPlannedSubjects([...tmpArray, { ...tmp, courseIds: tmp.courseIds.filter(c => c.id !== course.id) }]);
+                }
+            } else {
+                const tmp = plannedSubjects.find(s => s.subjectId === subject.id);
+                const tmpArray = plannedSubjects.filter(s => s.subjectId !== subject.id);
+                setPlannedSubjects([...tmpArray, { ...tmp, courseIds: [...tmp.courseIds, { id: course.id, code: course.code }] }]);
+            }
+        } else {
+            setPlannedSubjects([...plannedSubjects, { subjectId: subject.id, curriculumTemplateId: subject.curriculumTemplateId, curriculumTemplateLineId: subject.curriculumTemplateLineId, termId: subject.termId, code: subject.code, courseIds: [{ id: course.id, code: course.code }] }]);
+        }
+    }
+    function savePlannedSubjects() {
+        console.log(plannedSubjects);
+        const savedSubject = plannedSubjects.map(s => ({ subject: s.code, courses: s.courseIds.map(c => c.code) }));
+        setSavedSubjects(savedSubject);
+    }
+
+    async function loadSavedSubjects() {
+        if (savedSubjects.length === 0) return;
+        const res = await fetch(`/api/neptun/sze/subjects/course?termId=${formRef.current.termId}&subjectType=${formRef.current.subjectType}&curriculumId=${formRef.current.curriculum}&subjectGroupId=${formRef.current.subjectGroup}`, {
+            headers: {
+                'Authorization': `Bearer ${neptun?.token}`
+            },
+            method: 'POST',
+            body: JSON.stringify(savedSubjects)
+        });
+        const data = await res.json();
+        setPlannedSubjects(data.results);
+    }
+
+    async function handleSubjectSign() {
+        const res = await fetch(`/api/neptun/sze/subjects/signin`, {
+            headers: {
+                'Authorization': `Bearer ${neptun?.token}`
+            },
+            method: 'POST',
+            body: JSON.stringify(plannedSubjects)
+        });
+        const data = await res.json();
+        console.log(data);
+        if (data.success) {
+            // Handle successful sign-in
+        } else {
+            // Handle sign-in error
+        }
+    }
 
     return (
         <main className="flex flex-col">
             <div className="flex justify-between items-center">
                 <h1 className="text-2xl font-bold">SZE Neptun</h1>
                 <div onClick={() => { setNeptun(null); deleteToken('neptun'); router.replace('/neptun'); }} className="flex items-center gap-1 text-slate-300 group relative cursor-pointer hover:ring hover:ring-slate-400/20 hover:bg-slate-200/10 p-2 rounded-lg">
+                    {neptun && neptun.loggedIn &&
+                        new Date(neptun.loggedIn).toLocaleTimeString('hu-HU')
+                    }
                     <Icon.Authorized size={24} />
                     <span className="text-sm opacity-100 group-hover:opacity-0 duration-200">Bejelentkezve</span>
                     <span className="text-sm group-hover:flex group-hover:opacity-100 opacity-0 duration-200 absolute right-2">Kijelentkezés</span>
@@ -155,7 +223,7 @@ export default function NeptunPage() {
                     />
                     <SelectInput
                         id="subjectGroup"
-                        options={data.subjectGroupData.data}
+                        options={data.subjectGroupData.data.map((i) => { return { id: i.id, text: i.displayText } })}
                     />
                     <input type="text" id="name" placeholder="Tárgykód/név" className="bg-slate-900 border border-slate-600 rounded-lg p-2 w-full" />
                     <button type="submit" className="bg-slate-100/50 text-white rounded-lg p-2 cursor-pointer hover:bg-slate-100/30 flex items-center">
@@ -178,7 +246,7 @@ export default function NeptunPage() {
                 </div>
 
                 <div className="flex items-center gap-3">
-                    <button className="bg-purple-500/80 text-white rounded-lg p-2 px-4 cursor-pointer hover:bg-purple-500/50 flex items-center">
+                    <button onClick={handleSubjectSign} className="bg-purple-500/80 text-white rounded-lg p-2 px-4 cursor-pointer hover:bg-purple-500/50 flex items-center">
                         <Icon.LogIn size={20} className="inline-block mr-2" />
                         <span>Jelentkezés</span>
                     </button>
@@ -197,9 +265,16 @@ export default function NeptunPage() {
 
                 <div className="flex flex-col w-full gap-2">
                     {subjects.map((subject) => (
-                        <SubjectCard isOpen={subjectIsOpen} setIsOpen={(e) => { setSubjectIsOpen(e) }} key={subject.id} id={subject.id} name={subject.title} type={subject.type} kredit={subject.credit} requirementType={subject.requirementType} code={subject.code} termId={subject.termId} curriculumId={subject.curriculumTemplateId} curriculumLineId={subject.curriculumTemplateLineId} />
+                        <SubjectCard courseChecked={(plannedSubjects.find(c => c.subjectId === subject.id) || { courseIds: [] })?.courseIds} onCourseCheck={(c) => { handleSubjectClick(subject, c) }} isOpen={subjectIsOpen} setIsOpen={(e) => { setSubjectIsOpen(e) }} key={subject.id} id={subject.id} name={subject.title} type={subject.type} kredit={subject.credit} requirementType={subject.requirementType} code={subject.code} termId={subject.termId} curriculumId={subject.curriculumTemplateId} curriculumLineId={subject.curriculumTemplateLineId} />
                     ))}
 
+                </div>
+
+                <div className="flex items-center gap-3 mx-auto">
+                    <button onClick={handleLoadMore} className="bg-blue-500/80 text-white rounded-lg p-2 px-4 cursor-pointer hover:bg-blue-500/50 flex items-center">
+                        <Icon.Load size={20} className="inline-block mr-2" />
+                        <span>Továbbiak betöltése</span>
+                    </button>
                 </div>
             </div>
 
@@ -212,11 +287,11 @@ export default function NeptunPage() {
                 </div>
 
                 <div className="flex items-center gap-3">
-                    <button className="bg-emerald-500/80 text-white rounded-lg p-2 px-4 cursor-pointer hover:bg-emerald-500/50 flex items-center">
+                    <button onClick={() => savePlannedSubjects()} className="bg-emerald-500/80 text-white rounded-lg p-2 px-4 cursor-pointer hover:bg-emerald-500/50 flex items-center">
                         <Icon.Upload size={20} className="inline-block mr-2" onlyStrokes strokeWidth={2} />
                         <span>Mentés</span>
                     </button>
-                    <button className="bg-sky-500/80 text-white rounded-lg p-2 px-4 cursor-pointer hover:bg-sky-500/50 flex items-center">
+                    <button onClick={() => loadSavedSubjects()} className="bg-sky-500/80 text-white rounded-lg p-2 px-4 cursor-pointer hover:bg-sky-500/50 flex items-center">
                         <Icon.Download size={20} className="inline-block mr-2" onlyStrokes strokeWidth={2} />
                         <span>Betöltés</span>
                     </button>
@@ -253,8 +328,8 @@ export default function NeptunPage() {
 function SelectInput({ id, options, defaultValue }: { id: string; options: any[]; defaultValue?: string }) {
     return (
         <select id={id} defaultValue={defaultValue} className="bg-slate-900 border border-slate-600 rounded-lg p-2 w-full">
-            {options.map(option => (
-                <option key={option.value} value={option.value}>
+            {options.map((option, index) => (
+                <option key={option.value + '' + index} value={option.value}>
                     {option.text}
                 </option>
             ))}
@@ -262,11 +337,10 @@ function SelectInput({ id, options, defaultValue }: { id: string; options: any[]
     );
 }
 
-function SubjectCard({ id, name, type, kredit, requirementType, code, isOpen, setIsOpen, termId, curriculumId, curriculumLineId }: { id: string; name: string; type: string; kredit: number; requirementType: string; code: string; isOpen: any; setIsOpen: (isOpen: any) => void, termId: string, curriculumId: string, curriculumLineId: string }) {
+function SubjectCard({ id, name, type, kredit, requirementType, code, isOpen, setIsOpen, termId, curriculumId, curriculumLineId, onCourseCheck, courseChecked }: { id: string; name: string; type: string; kredit: number; requirementType: string; code: string; isOpen: any; setIsOpen: (isOpen: any) => void, termId: string, curriculumId: string, curriculumLineId: string, onCourseCheck: (courseId: string) => void, courseChecked: any[] }) {
 
     const [subjectCourseDatas, setSubjectCourseDatas] = useState<any[]>([]);
     const { neptun } = useContext(UserContext);
-
 
     async function getSubjectCourseDatas() {
         const response = await fetch(`/api/neptun/sze/subjects/course?termId=${termId}&subjectId=${id}&curriculumId=${curriculumId}&curriculumLineId=${curriculumLineId}`,
@@ -282,7 +356,7 @@ function SubjectCard({ id, name, type, kredit, requirementType, code, isOpen, se
     }
 
     return (
-        <main className="flex flex-col p-4 bg-slate-800/50 rounded-lg">
+        <main className={`flex flex-col p-4 bg-slate-800/50 rounded-lg ${courseChecked.length > 0 ? 'ring-2 ring-emerald-500' : ''}`}>
             <main className="flex justify-between items-center">
                 <div className="w-2/3">
                     <h3 className="text-lg font-semibold">{name}</h3>
@@ -293,6 +367,7 @@ function SubjectCard({ id, name, type, kredit, requirementType, code, isOpen, se
                     <span className="text-sm text-slate-400">{requirementType}</span>
                     <span className="h-1 w-1 bg-slate-600 rounded-full"></span>
                     <span className="text-sm text-slate-400">{code}</span>
+                    <span className="h-1 w-1 bg-slate-600 rounded-full"></span>
                 </div>
                 <div className="" >
                     <Icon.Chevron.Down size={24} className={`cursor-pointer ${isOpen === id ? 'rotate-180' : ''} duration-200`} onClick={getSubjectCourseDatas} />
@@ -301,8 +376,6 @@ function SubjectCard({ id, name, type, kredit, requirementType, code, isOpen, se
             {
                 isOpen === id && (
                     <div className="mt-6 flex flex-col w-full gap-2">
-
-
                         {
                             [...new Set(subjectCourseDatas.map(item => item.type))].map((type) => (
                                 <div key={type} className="p-4 rounded-lg">
@@ -310,11 +383,26 @@ function SubjectCard({ id, name, type, kredit, requirementType, code, isOpen, se
                                     <div className="flex flex-col gap-2 mt-2">
                                         {
                                             subjectCourseDatas.filter(item => item.type === type).map(course => (
-                                                <div key={course.id} className="p-4 bg-slate-900/20 border border-slate-700/50 rounded-lg">
-                                                    <h4 className="text-lg font-semibold">{course.tutorName}</h4>
-                                                    <p className="text-sm text-slate-400">{course.room}</p>
+                                                <div key={course.id} className="p-4 bg-slate-900/20 border border-slate-700/50 rounded-lg flex items-center justify-between">
+                                                    <div className="flex flex-col gap-1">
+                                                        <div className="flex items-center gap-2">
+                                                            <p className="text-lg text-slate-200">{course.registeredStudentsCount} / {course.maxLimit}</p>
+                                                            <p className="text-sm text-slate-400">{course.room}</p>
+                                                        </div>
+                                                        <div className="flex items-center gap-1">
+                                                            <Icon.Time size={16} onlyStrokes strokeWidth={2} className="text-slate-400" />
+                                                            <p className="text-sm text-slate-400 flex flex-col">{course.classInstanceInfos.map((info: any) => <span key={info.startTime}>{info.dayOfWeekText} {info.startTime} - {info.endTime}</span>)}</p>
+                                                        </div>
+                                                        <h4 className="text-lg font-semibold">{course.tutorName}</h4>
+                                                    </div>
 
-                                                    <p className="text-sm text-slate-400 flex flex-col">{course.classInstanceInfos.map((info: any) => <span key={info.startTime}>{info.dayOfWeekText} {info.startTime} - {info.endTime}</span>)}</p>
+                                                    {
+                                                        courseChecked.find(c => c.id === course.id) ? (
+                                                            <Icon.Check.Checked className="cursor-pointer" onClick={() => onCourseCheck(course)} size={24} />
+                                                        ) : (
+                                                            <Icon.Check.NotChecked className="cursor-pointer" onClick={() => onCourseCheck(course)} size={24} />
+                                                        )
+                                                    }
                                                 </div>
                                             ))
                                         }
