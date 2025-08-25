@@ -1,13 +1,12 @@
 "use client";
 import { Icon } from "@/icons/Icon";
-import { useRouter, useSearchParams } from "next/dist/client/components/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { useState } from "react";
 
-export default function ManagePage() {
+export default function ManagePage({ searchParams }: { searchParams: { type?: string } }) {
 
-    const query = useSearchParams();
-    const type = query.get("type");
+    const type = searchParams.type;
     const router = useRouter();
 
     const [selectedTab, setSelectedTab] = useState(type || "quizzes");

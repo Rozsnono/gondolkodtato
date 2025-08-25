@@ -22,8 +22,10 @@ export default function NeptunPage() {
     });
 
     const [plannedSubjects, setPlannedSubjects] = useState<any[]>([]);
-
+    const [subjects, setSubjects] = useState<any[]>([]);
+    const [subjectIsOpen, setSubjectIsOpen] = useState(null);
     const [time, setTime] = useState(10000);
+    const [logs, setLogs] = useState<any[]>([]);
 
     useEffect(() => {
         if (neptun && !neptun.token) {
@@ -57,10 +59,6 @@ export default function NeptunPage() {
         }
     });
 
-    const [subjects, setSubjects] = useState<any[]>([]);
-
-    const [subjectIsOpen, setSubjectIsOpen] = useState(null);
-
     async function getSubjects() {
         const res = await fetch(`/api/neptun/sze/subjects?termId=${formRef.current.termId}&subjectType=${formRef.current.subjectType}&curriculumId=${formRef.current.curriculum}&subjectGroupId=${formRef.current.subjectGroup}&title=${formRef.current.name}&from=${formRef.current.from}&to=${formRef.current.to}`, {
             headers: {
@@ -72,6 +70,7 @@ export default function NeptunPage() {
         }
         const data = await res.json();
         setSubjects(data.subjectData.data);
+        setLogs([...logs, { time: new Date().toLocaleTimeString('hu-HU'), message: `Betöltve ${data.subjectData.data.length} tárgy` }]);
     }
 
     if (isLoading) return <div>Loading...</div>;
@@ -79,38 +78,6 @@ export default function NeptunPage() {
     if (isError) {
         setNeptun(null); deleteToken('neptun'); router.replace('/neptun');
     }
-
-    //  {
-    //             "subjectGroup": "Választható tantárgycsoport",
-    //             "type": "Választható törzsanyag",
-    //             "semester": 0,
-    //             "maxSemester": null,
-    //             "minSemester": null,
-    //             "curriculumTemplateName": "Mérnökinformatikus (BSc) mintatanterv 2020",
-    //             "id": "523ae411-8d79-4e97-b0f0-fc01e26e2302",
-    //             "title": "A vasút világa",
-    //             "code": "EKNB_KOTM110",
-    //             "credit": 3,
-    //             "isWaiting": false,
-    //             "isCompleted": false,
-    //             "isRegistered": false,
-    //             "indexlineId": null,
-    //             "requirementType": "Folyamatos számonkérés",
-    //             "isSubjectTematicsDownloadEnabled": true,
-    //             "isInProgress": false,
-    //             "scheduledSubjectId": null,
-    //             "isScheduled": false,
-    //             "courses": [],
-    //             "note": "",
-    //             "termId": "2fe6297b-1acc-4e28-b4cc-42d8d1d38fb2",
-    //             "scheduledCoursesCount": 0,
-    //             "curriculumTemplateLineId": "55cf0c84-fc2f-498a-8104-05832535645a",
-    //             "curriculumTemplateId": "898c58d4-cb2d-482c-bbb3-d23381f2adb1",
-    //             "uiDisplayState": {
-    //                 "type": 0,
-    //                 "reasons": []
-    //             }
-    //         },
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     function handleFilterSubmit(event: any) {
@@ -139,13 +106,13 @@ export default function NeptunPage() {
 
     function handleSubjectClick(subject: any, course: any) {
         if (plannedSubjects.find(s => s.subjectId === subject.id)) {
-            if (plannedSubjects.find(s => s.subjectId === subject.id).courseIds.find(c => c.id === course.id)) {
+            if (plannedSubjects.find(s => s.subjectId === subject.id).courseIds.find((c: any) => c.id === course.id)) {
                 const tmp = plannedSubjects.find(s => s.subjectId === subject.id);
                 const tmpArray = plannedSubjects.filter(s => s.subjectId !== subject.id);
                 if (tmp.courseIds.length === 1) {
                     setPlannedSubjects([...tmpArray]);
                 } else {
-                    setPlannedSubjects([...tmpArray, { ...tmp, courseIds: tmp.courseIds.filter(c => c.id !== course.id) }]);
+                    setPlannedSubjects([...tmpArray, { ...tmp, courseIds: tmp.courseIds.filter((c: any) => c.id !== course.id) }]);
                 }
             } else {
                 const tmp = plannedSubjects.find(s => s.subjectId === subject.id);
@@ -155,11 +122,13 @@ export default function NeptunPage() {
         } else {
             setPlannedSubjects([...plannedSubjects, { subjectId: subject.id, curriculumTemplateId: subject.curriculumTemplateId, curriculumTemplateLineId: subject.curriculumTemplateLineId, termId: subject.termId, code: subject.code, courseIds: [{ id: course.id, code: course.code }] }]);
         }
+        setLogs([...logs, { time: new Date().toLocaleTimeString('hu-HU'), message: `${plannedSubjects.find(s => s.subjectId === subject.id) && plannedSubjects.find(s => s.subjectId === subject.id).courseIds.find((c: any) => c.id === course.id) ? 'Eltávolítva' : 'Hozzáadva'} a ${subject.code} tárgyhoz a ${course.type} kurzus (${course.id})` }]);
     }
+
     function savePlannedSubjects() {
-        console.log(plannedSubjects);
-        const savedSubject = plannedSubjects.map(s => ({ subject: s.code, courses: s.courseIds.map(c => c.code) }));
+        const savedSubject = plannedSubjects.map(s => ({ subject: s.code, courses: s.courseIds.map((c: any) => c.code) }));
         setSavedSubjects(savedSubject);
+        setLogs([...logs, { time: new Date().toLocaleTimeString('hu-HU'), message: `Tárgyak mentve: ${savedSubject.map(s => s.subject).join(', ')}` }]);
     }
 
     async function loadSavedSubjects() {
@@ -173,6 +142,7 @@ export default function NeptunPage() {
         });
         const data = await res.json();
         setPlannedSubjects(data.results);
+        setLogs([...logs, { time: new Date().toLocaleTimeString('hu-HU'), message: `Tárgyak betöltve: ${data.results.map((s: any) => s.code).join(', ')}` }]);
     }
 
     async function handleSubjectSign() {
@@ -190,6 +160,7 @@ export default function NeptunPage() {
         } else {
             // Handle sign-in error
         }
+        setLogs([...logs, { time: new Date().toLocaleTimeString('hu-HU'), message: `Jelentkezés: ${data.success ? 'Sikeres' : 'Sikertelen'}` }]);
     }
 
     return (
@@ -223,7 +194,7 @@ export default function NeptunPage() {
                     />
                     <SelectInput
                         id="subjectGroup"
-                        options={data.subjectGroupData.data.map((i) => { return { id: i.id, text: i.displayText } })}
+                        options={data.subjectGroupData.data.map((i: any) => { return { id: i.id, text: i.displayText } })}
                     />
                     <input type="text" id="name" placeholder="Tárgykód/név" className="bg-slate-900 border border-slate-600 rounded-lg p-2 w-full" />
                     <button type="submit" className="bg-slate-100/50 text-white rounded-lg p-2 cursor-pointer hover:bg-slate-100/30 flex items-center">
@@ -306,7 +277,16 @@ export default function NeptunPage() {
                         Tárgyakkal kapcsolatos események
                     </h4>
                     <div className="flex flex-col gap-2 bg-slate-800/50 p-3 rounded-lg max-h-[20rem] overflow-y-auto">
-                        <span className="text-sm text-slate-300">2024.02.15. 12:00 - 2024.02.15. 12:30</span>
+                        {
+                            logs.map((log, index) => (
+                                <span className="text-sm text-slate-300" key={index}>{log.time} | {log.message}</span>
+                            ))
+                        }
+                        {
+                            logs.length === 0 && (
+                                <span className="text-sm text-slate-300">Nincs esemény</span>
+                            )
+                        }
                     </div>
                 </div>
 
