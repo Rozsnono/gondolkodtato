@@ -1,11 +1,13 @@
 "use client";
 import { Icon } from "@/icons/Icon";
 import { UserContext } from "@/services/user.context";
+import { useRouter } from "next/navigation";
 import { useContext, useState } from "react";
 
 export default function AddQuizPage() {
 
     const { user } = useContext(UserContext);
+    const router = useRouter();
 
     async function handleOnSubmit(e: any) {
         e.preventDefault();
@@ -33,6 +35,8 @@ export default function AddQuizPage() {
             const data = await res.json();
             if (res.ok) {
                 console.log('Server response:', data);
+                alert('Kvíz sikeresen létrehozva!');
+                router.push('/manage/quiz');
             } else {
             }
         } catch (err) {

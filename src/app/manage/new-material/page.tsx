@@ -1,11 +1,14 @@
 "use client";
 import { Icon } from '@/icons/Icon';
 import { UserContext } from '@/services/user.context';
+import { useRouter } from 'next/navigation';
 import { useState, ChangeEvent, FormEvent, useContext } from 'react';
 
 export default function FileUpload() {
 
     const { user } = useContext<any>(UserContext);
+    const router = useRouter();
+
 
     const handleSubmit = async (e: any) => {
         e.preventDefault();
@@ -28,6 +31,8 @@ export default function FileUpload() {
             const data = await res.json();
             if (res.ok) {
                 console.log('Server response:', data);
+                alert('Tananyag sikeresen létrehozva!');
+                router.push('/manage/material');
             } else {
             }
         } catch (err) {

@@ -4,7 +4,7 @@ import { Icon } from "@/icons/Icon";
 import { UserContext } from "@/services/user.context";
 import { useQuery } from "@tanstack/react-query";
 import Link from "next/link";
-import { useParams } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import { useContext, useEffect, useState } from "react";
 
 export default function Attempt() {
@@ -12,6 +12,7 @@ export default function Attempt() {
     const id = useParams().attemptId;
     const [time, setTime] = useState(0);
     const { user } = useContext(UserContext);
+    const router = useRouter();
     const [isSubmitted, setIsSubmitted] = useState(false);
 
     const { data, isLoading, isError, error: serviceError, refetch } = useQuery({
@@ -53,8 +54,13 @@ export default function Attempt() {
         if (!res.ok) {
             throw new Error('Network response was not ok');
         }
+        const json = await res.json();
+        if (json.isFinished) {
+            router.push(`/quizzes/${data.quizId}/attempt/${id}/check`);
+        }else{
+            refetch();
+        }
         setIsSubmitted(false);
-        refetch();
     }
 
     function getTimeFormat(
@@ -90,14 +96,14 @@ export default function Attempt() {
             </div>
 
             <form onSubmit={handleSubmit} className="flex flex-col gap-4">
-                <QuestionCard isSubmitted={isSubmitted} question={data.questions[data.current].question} options={data.questions[data.current].options} answerLength={data.answers.length} />
+                <QuestionCard isFinish={data.current === data.questions.length - 1} isSubmitted={isSubmitted} question={data.questions[data.current].question} options={data.questions[data.current].options} answerLength={data.answers.length} />
             </form>
         </main>
     )
 }
 
 
-function QuestionCard({ question, options, answerLength, isSubmitted }: { question: string; options: string[]; answerLength: number; isSubmitted: boolean }) {
+function QuestionCard({ question, options, answerLength, isSubmitted, isFinish }: { question: string; options: string[]; answerLength: number; isSubmitted: boolean; isFinish: boolean }) {
 
     const [isHint, setIsHint] = useState(false);
 
@@ -121,14 +127,21 @@ function QuestionCard({ question, options, answerLength, isSubmitted }: { questi
                 }
             </div>
 
-            <div className="flex justify-between w-full">
-                <button disabled className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 border border-slate-300 text-slate-300 shadow-sm hover:bg-slate-400/30 cursor-pointer h-9 px-4 py-2">
-                    Előző
-                </button>
+            <div className="flex justify-between w-full select-none">
+                <div></div>
 
-                <button type="submit" className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 bg-slate-400/80 text-slate-900 shadow-sm hover:bg-slate-400/70 cursor-pointer h-9 px-4 py-2">
-                    Következő
-                </button>
+                {
+                    !isFinish ? (
+                        <button disabled={isSubmitted} type="submit" className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 bg-slate-400/80 text-slate-900 shadow-sm hover:bg-slate-400/70 cursor-pointer h-9 px-4 py-2">
+                            Következő
+                        </button>
+                    ) :
+                        (
+                            <button disabled={isSubmitted} type="submit" className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 bg-orange-200/80 text-orange-900 shadow-sm hover:bg-orange-300/70 cursor-pointer h-9 px-4 py-2">
+                                Leadás
+                            </button>
+                        )
+                }
             </div>
         </div>
     )

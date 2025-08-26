@@ -10,7 +10,7 @@ export default function MaterialsPage() {
     const [category, setCategory] = useState<string>('');
 
     const { data, isLoading, isError, error: serviceError, refetch } = useQuery({
-        queryKey: ['neptun-sze-filters'],
+        queryKey: ['materials'],
         queryFn: async () => {
             const res = await fetch('/api/material' + (category ? `?category=${category}` : ''), {
             });
@@ -25,7 +25,7 @@ export default function MaterialsPage() {
         refetch();
     }, [category, refetch]);
 
-    if (isLoading) {
+    if (isLoading || !data) {
         return <Loading />;
     }
 

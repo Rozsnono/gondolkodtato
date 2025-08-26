@@ -101,7 +101,6 @@ export default function NeptunPage() {
             ...formRef.current,
             to: formRef.current.to + 10
         }
-
         getSubjects();
     }
 
@@ -155,13 +154,14 @@ export default function NeptunPage() {
             body: JSON.stringify(plannedSubjects)
         });
         const data = await res.json();
-        console.log(data);
-        if (data.success) {
+
+        if (res.status === 200) {
             // Handle successful sign-in
         } else {
-            // Handle sign-in error
+            data.results.forEach((result: any) => {
+                setLogs([...logs, { time: new Date().toLocaleTimeString('hu-HU'), message: `Jelentkezés: ${result.error}:${result.message}` }]);
+            })
         }
-        setLogs([...logs, { time: new Date().toLocaleTimeString('hu-HU'), message: `Jelentkezés: ${res.status === 200 ? 'Sikeres' : 'Sikertelen'}` }]);
     }
 
     async function handleDeleteSubjects() {
@@ -187,7 +187,7 @@ export default function NeptunPage() {
             <main className="flex gap-3 ">
                 <div className="flex flex-col gap-4">
                     {
-                        !isLoading && data && !isError &&
+                        !isLoading && data && !isError && data.termsData &&
                         <form onSubmit={handleFilterSubmit} className="border border-slate-800 p-6 flex items-center gap-2 rounded-lg">
                             <SelectInput
                                 id="term"
@@ -240,7 +240,7 @@ export default function NeptunPage() {
                     <div className="border border-slate-800 p-6 flex flex-col gap-2 rounded-lg">
                         <h2 className="text-lg font-semibold flex items-center">
                             <Icon.Book size={20} className="inline-block mr-2" />
-                            Elérhető tárgyak - {data?.termsData.data.find((term: any) => term.value === formRef.current.termId)?.text || 'Nincs kiválasztva'}
+                            Elérhető tárgyak
                         </h2>
 
                         <div className="flex flex-col w-full gap-2">

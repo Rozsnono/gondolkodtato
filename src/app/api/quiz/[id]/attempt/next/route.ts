@@ -19,7 +19,7 @@ export async function POST(req: Request) {
         const quizId = new URL(req.url).searchParams.get('quizId') || '';
         const attemptId = new URL(req.url).searchParams.get('attemptId') || '';
 
-        const attempt = await db.collection('attempts').findOne({ _id: new mongoose.Types.ObjectId(attemptId)});
+        const attempt = await db.collection('attempts').findOne({ _id: new mongoose.Types.ObjectId(attemptId) });
 
         if (!attempt) {
             return NextResponse.json({ error: 'Attempt not found' }, { status: 404, headers: headers });
@@ -32,7 +32,7 @@ export async function POST(req: Request) {
         }
 
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        const isCorrect = body.answers.length > 0 ? body.answers.every((answer: any, index: number) => attempt.questions[attempt.current].answers.includes(answer)) : false;
+        const isCorrect = body.answers.length > 0 ? (body.answers.every((answer: any, index: number) => attempt.questions[attempt.current].answers.includes(answer)) && attempt.questions[attempt.current].answers.length === body.answers.length) : false;
 
         const answers = [...attempt.answers, { current: attempt.current, answers: body.answers, isCorrect: isCorrect }];
 
@@ -45,7 +45,7 @@ export async function POST(req: Request) {
             return NextResponse.json({ error: 'Failed to update attempt' }, { status: 500, headers: headers });
         }
 
-        return NextResponse.json({ success: true }, { headers: headers });
+        return NextResponse.json({ success: true, isFinished: attempt.current === attempt.questions.length - 1 }, { headers: headers });
 
     } catch (error) {
         console.error('Hiba a POST során:', error);
