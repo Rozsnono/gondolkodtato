@@ -1,27 +1,27 @@
 "use client";
 import { Icon } from "@/icons/Icon";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import Link from "next/link";
 import { useState } from "react";
 
-export default function ManagePage({ searchParams }: { searchParams: { type?: string } }) {
+export default function ManagePage() {
 
-    const type = searchParams.type;
+    const type = useParams().type;
     const router = useRouter();
 
-    const [selectedTab, setSelectedTab] = useState(type || "quizzes");
+    const [selectedTab, setSelectedTab] = useState(type || "quiz");
 
     return (
         <main className="flex flex-col gap-6">
             <h1 className="text-4xl font-bold">Adminisztráció</h1>
 
             <div className="grid grid-cols-2 gap-2 rounded-lg bg-slate-600/70 p-1">
-                <button className={`rounded-md  px-4 py-1 text-slate-200 cursor-pointer ${selectedTab === "quizzes" ? "bg-slate-900" : "bg-transparent"} duration-200`} onClick={() => { setSelectedTab("quizzes"); router.replace("/manage?type=quizzes") }}>Kvízek kezelése</button>
-                <button className={`rounded-md  px-4 py-1 text-slate-200 cursor-pointer ${selectedTab === "materials" ? "bg-slate-900" : "bg-transparent"} duration-200`} onClick={() => { setSelectedTab("materials"); router.replace("/manage?type=materials") }}>Tananyagok kezelése</button>
+                <button className={`rounded-md  px-4 py-1 text-slate-200 cursor-pointer ${selectedTab === "quiz" ? "bg-slate-900" : "bg-transparent"} duration-200`} onClick={() => { setSelectedTab("quizzes"); router.replace("/manage/quiz") }}>Kvízek kezelése</button>
+                <button className={`rounded-md  px-4 py-1 text-slate-200 cursor-pointer ${selectedTab === "material" ? "bg-slate-900" : "bg-transparent"} duration-200`} onClick={() => { setSelectedTab("materials"); router.replace("/manage/material") }}>Tananyagok kezelése</button>
             </div>
 
             {
-                selectedTab === "quizzes" ? <QuizManagement /> : <MaterialManagement />
+                selectedTab === "quiz" ? <QuizManagement /> : <MaterialManagement />
             }
 
         </main>
@@ -33,7 +33,7 @@ function QuizManagement() {
         <div>
             <div className="flex justify-between items-center">
                 <h1 className="text-2xl font-bold">Kvízek kezelése</h1>
-                <Link href="/manage/quiz" className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 bg-slate-200 hover:bg-slate-200/80 text-slate-900 shadow-sm cursor-pointer h-9 px-4 py-2">
+                <Link href="/manage/new-quiz" className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 bg-slate-200 hover:bg-slate-200/80 text-slate-900 shadow-sm cursor-pointer h-9 px-4 py-2">
                     <Icon.Add size={18} onlyStrokes strokeWidth={2} />
                     Készíts új kvízt
                 </Link>
@@ -90,7 +90,7 @@ function MaterialManagement() {
         <div>
             <div className="flex justify-between items-center">
                 <h1 className="text-2xl font-bold">Tananyagok kezelése</h1>
-                <Link href="/manage/material" className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 bg-slate-200 hover:bg-slate-200/80 text-slate-900 shadow-sm cursor-pointer h-9 px-4 py-2">
+                <Link href="/manage/new-material" className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 bg-slate-200 hover:bg-slate-200/80 text-slate-900 shadow-sm cursor-pointer h-9 px-4 py-2">
                     <Icon.Add size={18} onlyStrokes strokeWidth={2} />
                     Új tananyag hozzáadása
                 </Link>

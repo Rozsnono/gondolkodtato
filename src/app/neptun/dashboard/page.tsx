@@ -1,4 +1,5 @@
 "use client";
+import Loading from "@/app/loading";
 import { Icon } from "@/icons/Icon";
 import { deleteToken, UserContext } from "@/services/user.context";
 import { useQuery } from "@tanstack/react-query";
@@ -70,10 +71,10 @@ export default function NeptunPage() {
         }
         const data = await res.json();
         setSubjects(data.subjectData.data);
-        setLogs([...logs, { time: new Date().toLocaleTimeString('hu-HU'), message: `Betöltve ${data.subjectData.data.length} tárgy` }]);
+        setLogs([...logs, { time: new Date().toLocaleTimeString('hu-HU'), message: `${data.subjectData.data.length} tárgy betöltve ` }]);
     }
 
-    if (isLoading) return <div>Loading...</div>;
+    if (isLoading) return <Loading />;
 
     if (isError) {
         setNeptun(null); deleteToken('neptun'); router.replace('/neptun');
@@ -160,11 +161,18 @@ export default function NeptunPage() {
         } else {
             // Handle sign-in error
         }
-        setLogs([...logs, { time: new Date().toLocaleTimeString('hu-HU'), message: `Jelentkezés: ${data.success ? 'Sikeres' : 'Sikertelen'}` }]);
+        setLogs([...logs, { time: new Date().toLocaleTimeString('hu-HU'), message: `Jelentkezés: ${res.status === 200 ? 'Sikeres' : 'Sikertelen'}` }]);
+    }
+
+    async function handleDeleteSubjects() {
+        setPlannedSubjects([]);
+        setSavedSubjects([]);
+        setLogs([...logs, { time: new Date().toLocaleTimeString('hu-HU'), message: `Tárgyak törölve` }]);
     }
 
     return (
-        <main className="flex flex-col">
+
+        <main className="flex flex-col gap-4">
             <div className="flex justify-between items-center">
                 <h1 className="text-2xl font-bold">SZE Neptun</h1>
                 <div onClick={() => { setNeptun(null); deleteToken('neptun'); router.replace('/neptun'); }} className="flex items-center gap-1 text-slate-300 group relative cursor-pointer hover:ring hover:ring-slate-400/20 hover:bg-slate-200/10 p-2 rounded-lg">
@@ -176,130 +184,123 @@ export default function NeptunPage() {
                     <span className="text-sm group-hover:flex group-hover:opacity-100 opacity-0 duration-200 absolute right-2">Kijelentkezés</span>
                 </div>
             </div>
+            <main className="flex gap-3 ">
+                <div className="flex flex-col gap-4">
+                    {
+                        !isLoading && data && !isError &&
+                        <form onSubmit={handleFilterSubmit} className="border border-slate-800 p-6 flex items-center gap-2 rounded-lg">
+                            <SelectInput
+                                id="term"
+                                options={data.termsData.data}
+                            />
+                            <SelectInput
+                                id="subjectType"
+                                options={data.subjectTypeData.data}
+                            />
+                            <SelectInput
+                                id="curriculum"
+                                options={data.curriculumData.data}
+                            />
+                            <SelectInput
+                                id="subjectGroup"
+                                options={data.subjectGroupData.data.map((i: any) => { return { id: i.id, text: i.displayText } })}
+                            />
+                            <input type="text" id="name" placeholder="Tárgykód/név" className="bg-slate-900 border border-slate-600 rounded-lg p-2 w-full" />
+                            <button type="submit" className="bg-slate-100/50 text-white rounded-lg p-2 cursor-pointer hover:bg-slate-100/30 flex items-center">
+                                <Icon.Search size={20} className="inline-block mr-2" />
+                                <span>Keresés</span>
+                            </button>
+                        </form>
+                    }
 
-            {
-                !isLoading && data && !isError &&
-                <form onSubmit={handleFilterSubmit} className="border border-slate-800 mt-4 p-6 flex items-center gap-2 rounded-lg">
-                    <SelectInput
-                        id="term"
-                        options={data.termsData.data}
-                    />
-                    <SelectInput
-                        id="subjectType"
-                        options={data.subjectTypeData.data}
-                    />
-                    <SelectInput
-                        id="curriculum"
-                        options={data.curriculumData.data}
-                    />
-                    <SelectInput
-                        id="subjectGroup"
-                        options={data.subjectGroupData.data.map((i: any) => { return { id: i.id, text: i.displayText } })}
-                    />
-                    <input type="text" id="name" placeholder="Tárgykód/név" className="bg-slate-900 border border-slate-600 rounded-lg p-2 w-full" />
-                    <button type="submit" className="bg-slate-100/50 text-white rounded-lg p-2 cursor-pointer hover:bg-slate-100/30 flex items-center">
-                        <Icon.Search size={20} className="inline-block mr-2" />
-                        <span>Keresés</span>
-                    </button>
-                </form>
-            }
 
 
 
+                    <div className="border border-slate-800 p-4 px-6 flex items-center gap-2 rounded-lg justify-between">
+                        <div className="flex items-center gap-3">
+                            <span className="text-sm text-slate-300">Összesen: 0 találat</span>
+                        </div>
 
-            <div className="border border-slate-800 mt-4 p-4 px-6 flex items-center gap-2 rounded-lg justify-between">
-                <div className="flex items-center gap-3">
-                    <span className="text-sm text-slate-300">Összesen: 0 találat</span>
-                </div>
+                        <div className="flex items-center gap-3">
+                            <span className="text-sm text-slate-300 border border-slate-600/50 p-3 px-6 rounded-lg">Kreditek: 0 találat</span>
+                        </div>
 
-                <div className="flex items-center gap-3">
-                    <span className="text-sm text-slate-300 border border-slate-600/50 p-3 px-6 rounded-lg">Kreditek: 0 találat</span>
-                </div>
+                        <div className="flex items-center gap-3">
+                            <button onClick={handleSubjectSign} className="bg-purple-500/80 text-white rounded-lg p-2 px-4 cursor-pointer hover:bg-purple-500/50 flex items-center">
+                                <Icon.LogIn size={20} className="inline-block mr-2" />
+                                <span>Jelentkezés</span>
+                            </button>
+                            <button className="bg-orange-500/80 text-white rounded-lg p-2 px-4 cursor-pointer hover:bg-orange-500/50 flex items-center">
+                                <Icon.Book size={20} className="inline-block mr-2" />
+                                <span>Tematikák</span>
+                            </button>
+                        </div>
+                    </div>
 
-                <div className="flex items-center gap-3">
-                    <button onClick={handleSubjectSign} className="bg-purple-500/80 text-white rounded-lg p-2 px-4 cursor-pointer hover:bg-purple-500/50 flex items-center">
-                        <Icon.LogIn size={20} className="inline-block mr-2" />
-                        <span>Jelentkezés</span>
-                    </button>
-                    <button className="bg-orange-500/80 text-white rounded-lg p-2 px-4 cursor-pointer hover:bg-orange-500/50 flex items-center">
-                        <Icon.Book size={20} className="inline-block mr-2" />
-                        <span>Tematikák</span>
-                    </button>
-                </div>
-            </div>
+                    <div className="border border-slate-800 p-6 flex flex-col gap-2 rounded-lg">
+                        <h2 className="text-lg font-semibold flex items-center">
+                            <Icon.Book size={20} className="inline-block mr-2" />
+                            Elérhető tárgyak - {data?.termsData.data.find((term: any) => term.value === formRef.current.termId)?.text || 'Nincs kiválasztva'}
+                        </h2>
 
-            <div className="border border-slate-800 mt-4 p-6 flex flex-col gap-2 rounded-lg">
-                <h2 className="text-lg font-semibold flex items-center">
-                    <Icon.Book size={20} className="inline-block mr-2" />
-                    Elérhető tárgyak - {data?.termsData.data.find((term: any) => term.value === formRef.current.termId)?.text || 'Nincs kiválasztva'}
-                </h2>
+                        <div className="flex flex-col w-full gap-2">
+                            {subjects.map((subject) => (
+                                <SubjectCard courseChecked={(plannedSubjects.find(c => c.subjectId === subject.id) || { courseIds: [] })?.courseIds} onCourseCheck={(c) => { handleSubjectClick(subject, c) }} isOpen={subjectIsOpen} setIsOpen={(e) => { setSubjectIsOpen(e) }} key={subject.id} id={subject.id} name={subject.title} type={subject.type} kredit={subject.credit} requirementType={subject.requirementType} code={subject.code} termId={subject.termId} curriculumId={subject.curriculumTemplateId} curriculumLineId={subject.curriculumTemplateLineId} />
+                            ))}
 
-                <div className="flex flex-col w-full gap-2">
-                    {subjects.map((subject) => (
-                        <SubjectCard courseChecked={(plannedSubjects.find(c => c.subjectId === subject.id) || { courseIds: [] })?.courseIds} onCourseCheck={(c) => { handleSubjectClick(subject, c) }} isOpen={subjectIsOpen} setIsOpen={(e) => { setSubjectIsOpen(e) }} key={subject.id} id={subject.id} name={subject.title} type={subject.type} kredit={subject.credit} requirementType={subject.requirementType} code={subject.code} termId={subject.termId} curriculumId={subject.curriculumTemplateId} curriculumLineId={subject.curriculumTemplateLineId} />
-                    ))}
+                        </div>
 
-                </div>
+                        <div className="flex items-center gap-3 mx-auto">
+                            <button onClick={handleLoadMore} className="bg-blue-500/80 text-white rounded-lg p-2 px-4 cursor-pointer hover:bg-blue-500/50 flex items-center">
+                                <Icon.Load size={20} className="inline-block mr-2" />
+                                <span>Továbbiak betöltése</span>
+                            </button>
+                        </div>
+                    </div>
 
-                <div className="flex items-center gap-3 mx-auto">
-                    <button onClick={handleLoadMore} className="bg-blue-500/80 text-white rounded-lg p-2 px-4 cursor-pointer hover:bg-blue-500/50 flex items-center">
-                        <Icon.Load size={20} className="inline-block mr-2" />
-                        <span>Továbbiak betöltése</span>
-                    </button>
-                </div>
-            </div>
+                    <div className="border border-slate-800 p-6 flex items-center gap-2 rounded-lg justify-between">
+                        <div className="flex items-center gap-3">
+                            <button onClick={handleDeleteSubjects} className="bg-red-500/80 text-white rounded-lg p-2 px-4 cursor-pointer hover:bg-red-500/50 flex items-center">
+                                <Icon.Reset size={20} className="inline-block mr-2" />
+                                <span>Törlés</span>
+                            </button>
+                        </div>
 
-            <div className="border border-slate-800 mt-4 p-6 flex items-center gap-2 rounded-lg justify-between">
-                <div className="flex items-center gap-3">
-                    <button className="bg-red-500/80 text-white rounded-lg p-2 px-4 cursor-pointer hover:bg-red-500/50 flex items-center">
-                        <Icon.Reset size={20} className="inline-block mr-2" />
-                        <span>Törlés</span>
-                    </button>
-                </div>
-
-                <div className="flex items-center gap-3">
-                    <button onClick={() => savePlannedSubjects()} className="bg-emerald-500/80 text-white rounded-lg p-2 px-4 cursor-pointer hover:bg-emerald-500/50 flex items-center">
-                        <Icon.Upload size={20} className="inline-block mr-2" onlyStrokes strokeWidth={2} />
-                        <span>Mentés</span>
-                    </button>
-                    <button onClick={() => loadSavedSubjects()} className="bg-sky-500/80 text-white rounded-lg p-2 px-4 cursor-pointer hover:bg-sky-500/50 flex items-center">
-                        <Icon.Download size={20} className="inline-block mr-2" onlyStrokes strokeWidth={2} />
-                        <span>Betöltés</span>
-                    </button>
-                </div>
-            </div>
-
-            <div className="grid grid-cols-2 gap-4 mt-4">
-
-                <div className="border border-slate-800 mt-4 p-6 flex flex-col gap-2 rounded-lg">
-                    <h4 className="text-lg font-semibold flex items-center">
-                        <Icon.Book size={20} className="inline-block mr-2" />
-                        Tárgyakkal kapcsolatos események
-                    </h4>
-                    <div className="flex flex-col gap-2 bg-slate-800/50 p-3 rounded-lg max-h-[20rem] overflow-y-auto">
-                        {
-                            logs.map((log, index) => (
-                                <span className="text-sm text-slate-300" key={index}>{log.time} | {log.message}</span>
-                            ))
-                        }
-                        {
-                            logs.length === 0 && (
-                                <span className="text-sm text-slate-300">Nincs esemény</span>
-                            )
-                        }
+                        <div className="flex items-center gap-3">
+                            <button onClick={() => savePlannedSubjects()} className="bg-emerald-500/80 text-white rounded-lg p-2 px-4 cursor-pointer hover:bg-emerald-500/50 flex items-center">
+                                <Icon.Upload size={20} className="inline-block mr-2" onlyStrokes strokeWidth={2} />
+                                <span>Mentés</span>
+                            </button>
+                            <button onClick={() => loadSavedSubjects()} className="bg-sky-500/80 text-white rounded-lg p-2 px-4 cursor-pointer hover:bg-sky-500/50 flex items-center">
+                                <Icon.Download size={20} className="inline-block mr-2" onlyStrokes strokeWidth={2} />
+                                <span>Betöltés</span>
+                            </button>
+                        </div>
                     </div>
                 </div>
 
-                <div className="border border-slate-800 mt-4 p-6 flex flex-col gap-2 rounded-lg">
-                    <h4 className="text-lg font-semibold flex items-center">
-                        <Icon.Book size={20} className="inline-block mr-2" />
-                        Jelentkezési események
-                    </h4>
-                    <div className="flex flex-col gap-2 bg-slate-800/50 p-3 rounded-lg max-h-[20rem] overflow-y-auto">
-                        <span className="text-sm text-slate-300">2024.02.15. 12:00 - 2024.02.15. 12:30</span>
+                <div className="grid grid-cols-1 gap-4 min-w-80">
+
+                    <div className="border border-slate-800 p-6 flex flex-col gap-2 rounded-lg ">
+                        <h4 className="text-lg font-semibold flex items-center">
+                            <Icon.Book size={20} className="inline-block mr-2" />
+                            Fontos események
+                        </h4>
+                        <div className="flex flex-col gap-2 bg-slate-800/50 p-3 rounded-lg h-full overflow-y-auto">
+                            {
+                                logs.map((log, index) => (
+                                    <span className="text-sm text-slate-300" key={index}>{log.time} | {log.message}</span>
+                                ))
+                            }
+                            {
+                                logs.length === 0 && (
+                                    <span className="text-sm text-slate-300">Nincs esemény</span>
+                                )
+                            }
+                        </div>
                     </div>
                 </div>
-            </div>
+            </main>
         </main>
     )
 }

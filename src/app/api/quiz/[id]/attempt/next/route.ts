@@ -1,5 +1,5 @@
 // app/api/users/route.ts
-import clientPromise from '../../../../../lib/mongodb';
+import clientPromise from '../../../../../../lib/mongodb';
 import mongoose from 'mongoose';
 import { NextResponse } from 'next/server'
 
@@ -17,14 +17,9 @@ export async function POST(req: Request) {
         const db = client.db('gondolkodtato')
         const playerId = new URL(req.url).searchParams.get('playerId') || '';
         const quizId = new URL(req.url).searchParams.get('quizId') || '';
+        const attemptId = new URL(req.url).searchParams.get('attemptId') || '';
 
-        const quiz = await db.collection('quizzes').findOne({ _id: new mongoose.Types.ObjectId(quizId) });
-
-        if (!quiz) {
-            return NextResponse.json({ error: 'Quiz not found' }, { status: 404, headers: headers });
-        }
-
-        const attempt = await db.collection('attempts').findOne({ quizId: quizId, playerId: playerId, finishedAt: null });
+        const attempt = await db.collection('attempts').findOne({ _id: new mongoose.Types.ObjectId(attemptId)});
 
         if (!attempt) {
             return NextResponse.json({ error: 'Attempt not found' }, { status: 404, headers: headers });
@@ -37,7 +32,7 @@ export async function POST(req: Request) {
         }
 
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        const isCorrect = body.answers.every((answer: any, index: number) => answer === quiz.questions[index].correctAnswer);
+        const isCorrect = body.answers.length > 0 ? body.answers.every((answer: any, index: number) => attempt.questions[attempt.current].answers.includes(answer)) : false;
 
         const answers = [...attempt.answers, { current: attempt.current, answers: body.answers, isCorrect: isCorrect }];
 

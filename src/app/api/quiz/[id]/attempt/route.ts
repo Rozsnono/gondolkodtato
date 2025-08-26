@@ -1,5 +1,5 @@
 // app/api/users/route.ts
-import clientPromise from '../../../../lib/mongodb';
+import clientPromise from '../../../../../lib/mongodb';
 import mongoose from 'mongoose';
 import { NextResponse } from 'next/server'
 
@@ -24,17 +24,22 @@ export async function POST(req: Request) {
             return NextResponse.json({ error: 'Quiz not found' }, { status: 404, headers: headers });
         }
 
-        const questions = await db.collection('questions').find({ quizId: quizId }).toArray();
-
         const result = await db.collection('attempts').insertOne({
             _id: new mongoose.Types.ObjectId(),
             quizId: quizId,
-            questions: questions.sort(() => Math.random() - 0.5).slice(0, quiz.questionsCount),
+            questions: quiz.questions.sort(() => Math.random() - 0.5).slice(0, quiz.numberOfQuestions),
             answers: [],
             current: 0,
             startedAt: new Date(),
+            quizTitle: quiz.title,
             finishedAt: null,
             attemptedBy: playerId
+        })
+
+        await db.collection('quizzes').updateOne({
+            _id: new mongoose.Types.ObjectId(quizId)
+        }, {
+            $inc: { attempts: 1 }
         })
 
         return NextResponse.json({ success: true, resultId: result.insertedId }, { headers: headers });

@@ -1,11 +1,17 @@
 "use client"
+import Loading from "@/app/loading";
 import { Icon } from "@/icons/Icon";
+import { UserContext } from "@/services/user.context";
 import { useQuery } from "@tanstack/react-query";
-import { useParams } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
+import { useContext } from "react";
 
 export default function QuizPage() {
 
     const id = useParams()._id;
+    const router = useRouter();
+
+    const { user } = useContext(UserContext);
 
     const { data, isLoading, isError, error: serviceError, refetch } = useQuery({
         queryKey: ['quizzes', id],
@@ -18,10 +24,24 @@ export default function QuizPage() {
         }
     });
 
-    if(isLoading){
-        return <div>Loading...</div>;
+    if (isLoading) {
+        return <Loading />;
     }
-    
+
+    async function AttemptQuiz() {
+        const res = await fetch(`/api/quiz/${id}/attempt?quizId=${id}&playerId=${user._id}`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+        });
+        if (!res.ok) {
+            throw new Error('Network response was not ok');
+        }
+        const data = await res.json();
+        router.push(`/quizzes/${id}/attempt/${data.resultId}`);
+    }
+
     return (
         <main className="flex flex-col gap-6">
             <div className="border border-slate-600/70 rounded-lg p-6 flex flex-col w-2xl mx-auto">
@@ -60,7 +80,7 @@ export default function QuizPage() {
                 </div>
 
                 <div className="flex mt-4">
-                    <button className="w-full inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 bg-slate-200 hover:bg-slate-200/80 text-slate-900 shadow-sm cursor-pointer h-9 px-4 py-2">
+                    <button onClick={AttemptQuiz} className="w-full inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 bg-slate-200 hover:bg-slate-200/80 text-slate-900 shadow-sm cursor-pointer h-9 px-4 py-2">
                         <Icon.Play onlyStrokes size={16} strokeWidth={2} className="me-1" />
                         Kvíz indítása
                     </button>

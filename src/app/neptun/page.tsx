@@ -2,15 +2,17 @@
 import { Icon } from "@/icons/Icon";
 import { UserContext } from "@/services/user.context";
 import { useRouter } from "next/navigation";
-import { useContext, useEffect } from "react";
+import { useContext, useEffect, useState } from "react";
 
 export default function NeptunPage() {
 
     const { neptun, setNeptun } = useContext(UserContext);
 
+    const [ state, setState ] = useState<{ error: string | null, isLoading: boolean }>({ error: null, isLoading: false });
     const router = useRouter();
 
     async function handleLogin(event: any) {
+        setState({ error: null, isLoading: true });
         event.preventDefault();
         const neptunCode = event.target['neptun'].value;
         const password = event.target['password'].value;
@@ -30,18 +32,19 @@ export default function NeptunPage() {
 
         const result = await res.json();
         if (result.error) {
-            console.error('Login failed:', result.error);
+            setState({ error: result.error, isLoading: false });
             return;
         }
 
         console.log('Login successful:', result);
+        setState({ error: null, isLoading: false });
 
         // Save the Neptun code to the context
         setNeptun({ code: neptunCode, token: result.token, loggedIn: new Date().getTime() });
     }
 
     useEffect(() => {
-        if(neptun && neptun.token){
+        if (neptun && neptun.token) {
             router.push('/neptun/dashboard');
         }
     }, [neptun]);
@@ -68,7 +71,15 @@ export default function NeptunPage() {
                         <label htmlFor="code" className="block text-sm font-medium text-slate-100">Google Kód</label>
                         <input type="text" id="code" className="mt-1 block w-full rounded-md border border-slate-400 bg-slate-800 p-2 text-slate-100" />
                     </div>
-                    <button type="submit" className="w-full rounded-md bg-slate-400 p-2 text-slate-900 hover:bg-slate-300 cursor-pointer mt-6">Bejelentkezés</button>
+                    {
+                        state.error && (
+                            <p className="text-sm text-red-400 flex items-center gap-1">
+                                <Icon.Alert size={16} strokeWidth={2} onlyStrokes />
+                                {state.error}
+                            </p>
+                        )
+                    }
+                    <button disabled={state.isLoading} type="submit" className="w-full rounded-md bg-slate-400 p-2 text-slate-900 hover:bg-slate-300 cursor-pointer mt-6">Bejelentkezés</button>
                 </form>
             </div>
         </main>

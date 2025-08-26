@@ -3,6 +3,7 @@ import { Icon } from "@/icons/Icon";
 import { useQuery } from "@tanstack/react-query";
 import Link from "next/link";
 import { useEffect, useState } from "react";
+import Loading from "../loading";
 
 export default function MaterialsPage() {
 
@@ -25,14 +26,14 @@ export default function MaterialsPage() {
     }, [category, refetch]);
 
     if (isLoading) {
-        return <div>Loading...</div>;
+        return <Loading />;
     }
 
     return (
         <main className="flex flex-col gap-6">
             <div className="flex justify-between items-center">
                 <h1 className="text-4xl font-bold">Tananyagok</h1>
-                <Link href='manage/material' className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 bg-slate-200 hover:bg-slate-200/80 text-slate-900 shadow-sm cursor-pointer h-9 px-4 py-2">
+                <Link href='manage/new-material' className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 bg-slate-200 hover:bg-slate-200/80 text-slate-900 shadow-sm cursor-pointer h-9 px-4 py-2">
                     <Icon.Upload size={18} onlyStrokes strokeWidth={2} />
                     Anyag feltöltése
                 </Link>

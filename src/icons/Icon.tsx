@@ -17,6 +17,13 @@ export const Icon = {
             <path d="M12 4v16m-8-8h16"></path>
         </IconWrapper>
     ),
+    Alert: ({ size, className, onlyStrokes, strokeWidth, onClick }: IconProps) => (
+        <IconWrapper size={size} className={className} onlyStrokes={onlyStrokes} strokeWidth={strokeWidth} onClick={onClick}>
+            <path d="m2.202 18.47 7.962-14.465c.738-1.34 2.934-1.34 3.672 0l7.962 14.465c.646 1.173-.338 2.53-1.835 2.53H4.037c-1.497 0-2.481-1.357-1.835-2.53Z"></path>
+            <path d="M12 9v4"></path>
+            <path d="M12 17.02V17"></path>
+        </IconWrapper>
+    ),
     Arrow: {
         Left: ({ size, className, onlyStrokes, strokeWidth, onClick }: IconProps) => (
             <IconWrapper size={size} className={className} onlyStrokes={onlyStrokes} strokeWidth={strokeWidth} onClick={onClick}>
@@ -155,6 +162,18 @@ export const Icon = {
     Load: ({ size, className, onlyStrokes, strokeWidth, onClick }: IconProps) => (
         <IconWrapper size={size} className={className} onlyStrokes={onlyStrokes} strokeWidth={strokeWidth} onClick={onClick}>
             <path d="M10 11H7.101l.001-.01a4.94 4.94 0 0 1 .752-1.786 5.054 5.054 0 0 1 2.2-1.811c.302-.128.617-.226.938-.291a5.078 5.078 0 0 1 2.018 0c.957.196 1.835.67 2.525 1.36l1.416-1.411a7.036 7.036 0 0 0-2.224-1.501 6.922 6.922 0 0 0-1.315-.408 7.079 7.079 0 0 0-2.819 0c-.451.092-.892.23-1.316.409a7.04 7.04 0 0 0-3.08 2.534 6.978 6.978 0 0 0-1.054 2.505c-.028.135-.043.273-.063.41H2l4 4 4-4Zm4 2h2.899l-.001.008a4.976 4.976 0 0 1-2.103 3.138 4.942 4.942 0 0 1-1.787.752 5.073 5.073 0 0 1-2.017 0 4.954 4.954 0 0 1-1.787-.752 5.069 5.069 0 0 1-.74-.61L7.05 16.95a7.031 7.031 0 0 0 2.225 1.5c.424.18.867.317 1.315.408.93.189 1.888.189 2.818 0a7.03 7.03 0 0 0 4.395-2.945 6.973 6.973 0 0 0 1.053-2.503c.027-.135.043-.273.063-.41H22l-4-4-4 4Z"></path>
+        </IconWrapper>
+    ),
+    Loader: ({ size, className, onlyStrokes, strokeWidth, onClick }: IconProps) => (
+        <IconWrapper size={size} className={className} onlyStrokes={onlyStrokes} strokeWidth={strokeWidth} onClick={onClick}>
+            <path d="M12 22a2 2 0 1 0 0-4 2 2 0 0 0 0 4Z"></path>
+            <path d="M12 6a2 2 0 1 0 0-4 2 2 0 0 0 0 4Z"></path>
+            <path d="M6.343 19.656a2 2 0 1 0 0-4 2 2 0 0 0 0 4Z"></path>
+            <path d="M17.657 8.344a2 2 0 1 0 0-4 2 2 0 0 0 0 4Z"></path>
+            <path d="M4 14.002A2.001 2.001 0 1 0 4 10a2.001 2.001 0 0 0 0 4.002Z"></path>
+            <path d="M20 14a2 2 0 1 0 0-4 2 2 0 0 0 0 4Z"></path>
+            <path d="M6.343 8.344a2 2 0 1 0 0-4 2 2 0 0 0 0 4Z"></path>
+            <path d="M17.657 19.656a2 2 0 1 0 0-4 2 2 0 0 0 0 4Z"></path>
         </IconWrapper>
     ),
     LogIn: ({ size, className, onlyStrokes, strokeWidth, onClick }: IconProps) => (

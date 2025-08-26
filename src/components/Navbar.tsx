@@ -56,7 +56,7 @@ export default function Navbar() {
                             <span>Neptun
                             </span>
                         </Link>
-                        <Link href="/manage" className={`justify-center whitespace-nowrap rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 h-9 px-4 py-2 flex items-center space-x-2 cursor-pointer ${isActive("/manage")}`}>
+                        <Link href="/manage/quiz" className={`justify-center whitespace-nowrap rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 h-9 px-4 py-2 flex items-center space-x-2 cursor-pointer ${isActive("/manage")}`}>
                             <Icon.Settings size={18} />
                             <span>Adminisztráció
                             </span>
