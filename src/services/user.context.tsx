@@ -5,7 +5,7 @@ import { createContext } from "react";
 
 export interface Homes {
     user: any;
-    setUser: (homes: any[]) => void;
+    setUser: (user: any) => void;
     neptun: any;
     setNeptun: (neptun: any) => void;
     savedSubjects: any[];
@@ -27,10 +27,7 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
     const [savedSubjects, setSavedSubjects] = React.useState<any[]>([]);
 
     useEffect(() => {
-        const cookie = document.cookie.split('; ').find(row => row.startsWith('user='));
-        if (!cookie) {
-            saveToCookie(user, 'user');
-        }
+        saveToCookie(user, 'user');
     }, [user]);
 
     useEffect(() => {

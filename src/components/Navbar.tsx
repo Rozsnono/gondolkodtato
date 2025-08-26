@@ -9,7 +9,7 @@ import { UserContext } from "@/services/user.context";
 export default function Navbar() {
 
     const path = usePathname();
-    const { user } = useContext(UserContext);
+    const { user, setUser } = useContext(UserContext);
 
 
     function isActive(route: string) {
@@ -77,7 +77,7 @@ export default function Navbar() {
                     }
                     {
                         user && user.name &&
-                        <span className="relative flex h-10 w-10 shrink-0 overflow-hidden rounded-full">
+                        <span onClick={() => setUser(null)} className="relative flex h-10 w-10 shrink-0 overflow-hidden rounded-full cursor-pointer">
                             <span className="flex h-full w-full items-center justify-center rounded-full bg-slate-700">{user.name[0]}
                             </span>
                         </span>
