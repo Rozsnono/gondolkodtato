@@ -114,7 +114,7 @@ function AnswerRow({ option, correct, selected, }: { option: string; correct: st
     } else if (!isCorrect && isSelected) {
         classes = "border-red-500 bg-red-500/10"; icon = <Icon.Close size={20} />;
     } else if (isCorrect && !isSelected) {
-        classes = "border-sky-600 bg-sky-600/10"; icon = <Icon.Check.NotChecked size={20} />;
+        classes = "border-orange-600 bg-orange-600/10"; icon = <Icon.Check.NotChecked size={20} />;
     }
 
     return (<div className={`flex items-center gap-2 w-full border rounded-md p-3 ${classes}`}> {icon} <span className="text-slate-200">{option}</span> </div>);
