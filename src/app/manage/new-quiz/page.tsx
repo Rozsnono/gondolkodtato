@@ -48,12 +48,12 @@ export default function AddQuizPage() {
         <div className="flex flex-col gap-6" >
             <h1 className="text-4xl font-bold">Kvíz hozzáadása</h1>
 
-            <form onSubmit={handleOnSubmit} className="grid lg:grid-cols-2 grid-cols-1 lg:max-w-4xl w-full mx-auto gap-4 lg:p-6 p-2 border border-slate-600/30 rounded-lg">
+            <form onSubmit={handleOnSubmit} className="lg:grid lg:grid-cols-2 flex flex-col lg:max-w-4xl w-full mx-auto gap-4 lg:p-6 p-2 border border-slate-600/30 rounded-lg">
                 <TextInput label="Kvíz címe" placeholder="Írd be a kvíz címét..." className="lg:col-span-2" id="quiz-title" />
                 <TextInput label="Kategória" id="quiz-category" placeholder="Írd be a kvíz kategóriáját..." className="lg:col-span-2" />
                 <SelectInput label="Nehézség" options={["Easy", "Medium", "Hard"]} id="quiz-difficulty" />
-                <NumberInput label="Átlagos kitöltésre szánt idő" id="quiz-time" defaultValue={30} unit={'Perc'}/>
-                <NumberInput label="Feltehető kérdések száma" id="quiz-questions" defaultValue={15} unit={'db'}/>
+                <NumberInput label="Átlagos kitöltésre szánt idő" id="quiz-time" defaultValue={30} unit={'Perc'} />
+                <NumberInput label="Feltehető kérdések száma" id="quiz-questions" defaultValue={15} unit={'db'} />
                 <AreaInput label="Kvíz leírása" placeholder="Írd be a kvíz leírását..." className="lg:col-span-2" id="quiz-description" />
                 <FileInput label="Fájl feltöltése" id="quiz-file" />
                 <RateInput label="Értékelés" id="quiz-rating" max={10} />
@@ -130,17 +130,27 @@ function RateInput({ label, id, max }: { label: string; id: string; max: number 
     return (
         <div className="w-full flex gap-1 flex-col">
             <label className="block text-sm font-medium text-slate-300">{label}</label>
-            <div className="flex gap-1 items-center p-1">
+            <div className="md:flex hidden gap-1 items-center p-1">
                 {
                     new Array(max).fill(0).map((_, index) => (
-                        <div key={index} className="relative group cursor-pointer" onClick={() => {setRating(index + 1); setTempRating(index + 1); }} onMouseEnter={() => setRating(index + 1)} onMouseLeave={() => setRating(tempRating)}>
+                        <div key={index} className="relative group cursor-pointer" onClick={() => { setRating(index + 1); setTempRating(index + 1); }} onMouseEnter={() => setRating(index + 1)} onMouseLeave={() => setRating(tempRating)}>
                             <Icon.Star size={32} strokeWidth={2} className={`me-1 text-yellow-300 group-hover:opacity-0 opacity-100 duration-200 ${rating! >= index + 1 ? 'opacity-100' : 'opacity-0'}`} />
                             <Icon.StarFull size={32} strokeWidth={2} className={`me-1 text-yellow-300 group-hover:opacity-100 opacity-0 duration-200 absolute top-0 left-0 ${rating! >= index + 1 ? 'opacity-100' : 'opacity-0'}`} />
                         </div>
                     ))
                 }
             </div>
-            <input id={id} type="number" value={rating || ''} min={1} max={max} className="hidden" onChange={()=>{}}/>
+            <div className="md:hidden flex gap-1 items-center p-1">
+                {
+                    new Array(max).fill(0).map((_, index) => (
+                        <div key={index} className="relative group cursor-pointer" onClick={() => { setRating(index + 1); setTempRating(index + 1); }} onMouseEnter={() => setRating(index + 1)} onMouseLeave={() => setRating(tempRating)}>
+                            <Icon.Star size={24} strokeWidth={2} className={`me-1 text-yellow-300 group-hover:opacity-0 opacity-100 duration-200 ${rating! >= index + 1 ? 'opacity-100' : 'opacity-0'}`} />
+                            <Icon.StarFull size={24} strokeWidth={2} className={`me-1 text-yellow-300 group-hover:opacity-100 opacity-0 duration-200 absolute top-0 left-0 ${rating! >= index + 1 ? 'opacity-100' : 'opacity-0'}`} />
+                        </div>
+                    ))
+                }
+            </div>
+            <input id={id} type="number" value={rating || ''} min={1} max={max} className="hidden" onChange={() => { }} />
         </div>
     );
 }

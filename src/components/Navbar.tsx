@@ -5,6 +5,7 @@ import { usePathname } from "next/navigation";
 import { useContext, useState } from "react";
 import Login from "./Login";
 import { UserContext } from "@/services/user.context";
+import React from "react";
 
 export default function Navbar() {
 
@@ -20,70 +21,138 @@ export default function Navbar() {
     }
 
     const [isLoginOpen, setIsLoginOpen] = useState(false);
+    const [isNavOpen, setIsNavOpen] = useState(false);
 
     return (
 
-        <nav className="backdrop-blur-md border-b border-slate-500/30 px-4 py-3 z-50">
+        <React.Fragment>
+            <nav className="backdrop-blur-md border-b border-slate-500/30 px-4 py-3 z-50">
+                <div className="max-w-7xl mx-auto flex items-center justify-between">
 
-            <div className="max-w-7xl mx-auto flex items-center justify-between">
+                    <div className="flex items-center space-x-4">
 
-                <div className="flex items-center space-x-4">
+                        <div className="flex items-center space-x-2">
+                            <Icon.Brain size={36} className="text-slate-400" />
 
-                    <div className="flex items-center space-x-2">
-                        <Icon.Brain size={36} className="text-slate-400" />
-
-                        <span className="text-2xl font-bold text-slate-100">Gondolkodtató
-                        </span>
+                            <span className="text-2xl font-bold text-slate-100">Gondolkodtató
+                            </span>
+                        </div>
+                        <div className="hidden md:flex items-center space-x-6 ml-10">
+                            {
+                                user &&
+                                <React.Fragment>
+                                    <Link href="/" className={`justify-center whitespace-nowrap rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 h-9 px-4 py-2 flex items-center space-x-2 cursor-pointer ${isActive("/")}`}>
+                                        <Icon.Home size={18} />
+                                        <span>Főoldal
+                                        </span>
+                                    </Link>
+                                    <Link href="/quizzes" className={`justify-center whitespace-nowrap rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 h-9 px-4 py-2 flex items-center space-x-2 cursor-pointer ${isActive("/quizzes")}`}>
+                                        <Icon.Brain size={18} />
+                                        <span>Kvízek
+                                        </span>
+                                    </Link>
+                                    <Link href="/materials" className={`justify-center whitespace-nowrap rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 h-9 px-4 py-2 flex items-center space-x-2 cursor-pointer ${isActive("/materials")}`}>
+                                        <Icon.Book size={18} />
+                                        <span>Tananyagok
+                                        </span>
+                                    </Link>
+                                    <Link href="/neptun" className={`justify-center whitespace-nowrap rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 h-9 px-4 py-2 flex items-center space-x-2 cursor-pointer ${isActive("/neptun")}`}>
+                                        <Icon.DegreeHat size={18} onlyStrokes strokeWidth={2} />
+                                        <span>Neptun
+                                        </span>
+                                    </Link>
+                                    <Link href="/manage/quiz" className={`justify-center whitespace-nowrap rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 h-9 px-4 py-2 flex items-center space-x-2 cursor-pointer ${isActive("/manage")}`}>
+                                        <Icon.Settings size={18} />
+                                        <span>Adminisztráció
+                                        </span>
+                                    </Link>
+                                </React.Fragment>
+                            }
+                        </div>
                     </div>
-                    <div className="hidden md:flex items-center space-x-6 ml-10">
-                        <Link href="/" className={`justify-center whitespace-nowrap rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 h-9 px-4 py-2 flex items-center space-x-2 cursor-pointer ${isActive("/")}`}>
-                            <Icon.Home size={18} />
-                            <span>Főoldal
-                            </span>
-                        </Link>
-                        <Link href="/quizzes" className={`justify-center whitespace-nowrap rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 h-9 px-4 py-2 flex items-center space-x-2 cursor-pointer ${isActive("/quizzes")}`}>
-                            <Icon.Brain size={18} />
-                            <span>Kvízek
-                            </span>
-                        </Link>
-                        <Link href="/materials" className={`justify-center whitespace-nowrap rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 h-9 px-4 py-2 flex items-center space-x-2 cursor-pointer ${isActive("/materials")}`}>
-                            <Icon.Book size={18} />
-                            <span>Tananyagok
-                            </span>
-                        </Link>
-                        <Link href="/neptun" className={`justify-center whitespace-nowrap rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 h-9 px-4 py-2 flex items-center space-x-2 cursor-pointer ${isActive("/neptun")}`}>
-                            <Icon.DegreeHat size={18} onlyStrokes strokeWidth={2} />
-                            <span>Neptun
-                            </span>
-                        </Link>
-                        <Link href="/manage/quiz" className={`justify-center whitespace-nowrap rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 h-9 px-4 py-2 flex items-center space-x-2 cursor-pointer ${isActive("/manage")}`}>
-                            <Icon.Settings size={18} />
-                            <span>Adminisztráció
-                            </span>
-                        </Link>
-                    </div>
-                </div>
-                <div className="flex items-center space-x-4">
-
-                    {
-                        !user &&
-                        <button onClick={() => setIsLoginOpen(!isLoginOpen)} className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 border border-slate-300 text-slate-300 shadow-sm hover:bg-slate-400/30 cursor-pointer h-9 px-4 py-2">
-                            <Icon.User size={18} />
-                            Belépés
+                    <div className="flex items-center">
+                        <button onClick={() => setIsNavOpen(!isNavOpen)} className="md:hidden inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 text-slate-300 shadow-sm hover:bg-slate-400/30 cursor-pointer h-9 px-1 py-2">
+                            <Icon.Menu size={32} />
                         </button>
-                    }
-                    {
-                        isLoginOpen && <Login onClose={() => setIsLoginOpen(false)} />
-                    }
-                    {
-                        user && user.name &&
-                        <span onClick={() => setUser(null)} className="relative flex h-10 w-10 shrink-0 overflow-hidden rounded-full cursor-pointer">
-                            <span className="flex h-full w-full items-center justify-center rounded-full bg-slate-700">{user.name[0]}
+
+
+                        {
+                            !user &&
+                            <button onClick={() => setIsLoginOpen(!isLoginOpen)} className="lg:flex hidden items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 border border-slate-300 text-slate-300 shadow-sm hover:bg-slate-400/30 cursor-pointer h-9 px-4 py-2">
+                                <Icon.User size={18} />
+                                Belépés
+                            </button>
+                        }
+                        {
+                            isLoginOpen && <Login onClose={() => setIsLoginOpen(false)} />
+                        }
+                        {
+                            user && user.name &&
+                            <span onClick={() => setUser(null)} className="relative h-10 w-10 shrink-0 overflow-hidden rounded-full cursor-pointer lg:flex hidden">
+                                <span className="flex h-full w-full items-center justify-center rounded-full bg-slate-700">{user.name[0]}
+                                </span>
                             </span>
-                        </span>
-                    }
+                        }
+                    </div>
                 </div>
-            </div>
-        </nav>
+            </nav>
+            {
+                isNavOpen &&
+                <div className="md:hidden flex items-center fixed top-0 left-0 bg-black/50 backdrop-blur-xl z-[10000] h-screen w-screen">
+                    <div className="flex flex-col items-center w-full gap-8">
+                        {
+                            user &&
+                            <React.Fragment>
+                                <Link onClick={() => setIsNavOpen(false)} href="/" className={`justify-center whitespace-nowrap rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 h-9 px-4 py-2 flex items-center space-x-2 cursor-pointer ${isActive("/")}`}>
+                                    <Icon.Home size={18} />
+                                    <span>Főoldal
+                                    </span>
+                                </Link>
+                                <Link onClick={() => setIsNavOpen(false)} href="/quizzes" className={`justify-center whitespace-nowrap rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 h-9 px-4 py-2 flex items-center space-x-2 cursor-pointer ${isActive("/quizzes")}`}>
+                                    <Icon.Brain size={18} />
+                                    <span>Kvízek
+                                    </span>
+                                </Link>
+                                <Link onClick={() => setIsNavOpen(false)} href="/materials" className={`justify-center whitespace-nowrap rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 h-9 px-4 py-2 flex items-center space-x-2 cursor-pointer ${isActive("/materials")}`}>
+                                    <Icon.Book size={18} />
+                                    <span>Tananyagok
+                                    </span>
+                                </Link>
+                                <Link onClick={() => setIsNavOpen(false)} href="/neptun" className={`justify-center whitespace-nowrap rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 h-9 px-4 py-2 flex items-center space-x-2 cursor-pointer ${isActive("/neptun")}`}>
+                                    <Icon.DegreeHat size={18} onlyStrokes strokeWidth={2} />
+                                    <span>Neptun
+                                    </span>
+                                </Link>
+                                <Link onClick={() => setIsNavOpen(false)} href="/manage/quiz" className={`justify-center whitespace-nowrap rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 h-9 px-4 py-2 flex items-center space-x-2 cursor-pointer ${isActive("/manage")}`}>
+                                    <Icon.Settings size={18} />
+                                    <span>Adminisztráció
+                                    </span>
+                                </Link>
+                            </React.Fragment>
+                        }
+
+                        {
+                            !user &&
+                            <button onClick={() => setIsLoginOpen(!isLoginOpen)} className="flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 border border-slate-300 text-slate-300 shadow-sm hover:bg-slate-400/30 cursor-pointer h-9 px-4 py-2">
+                                <Icon.User size={18} />
+                                Belépés
+                            </button>
+                        }
+                        {
+                            isLoginOpen && <Login onClose={() => setIsLoginOpen(false)} />
+                        }
+                        {
+                            user && user.name &&
+                            <span onClick={() => setUser(null)} className="relative h-10 w-10 shrink-0 overflow-hidden rounded-full cursor-pointer">
+                                <span className="flex h-full w-full items-center justify-center rounded-full bg-slate-700">{user.name[0]}
+                                </span>
+                            </span>
+                        }
+                    </div>
+
+                </div>
+            }
+        </React.Fragment>
+
     )
 }

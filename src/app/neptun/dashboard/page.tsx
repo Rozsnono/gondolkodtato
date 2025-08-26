@@ -184,11 +184,11 @@ export default function NeptunPage() {
                     <span className="text-sm group-hover:flex group-hover:opacity-100 opacity-0 duration-200 absolute right-2">Kijelentkezés</span>
                 </div>
             </div>
-            <main className="flex gap-3 ">
+            <main className="flex gap-3 lg:flex-row flex-col">
                 <div className="flex flex-col gap-4">
                     {
                         !isLoading && data && !isError && data.termsData &&
-                        <form onSubmit={handleFilterSubmit} className="border border-slate-800 p-6 flex items-center gap-2 rounded-lg">
+                        <form onSubmit={handleFilterSubmit} className="border border-slate-800 p-6 flex lg:flex-row flex-col items-center gap-2 rounded-lg">
                             <SelectInput
                                 id="term"
                                 options={data.termsData.data}
@@ -216,12 +216,12 @@ export default function NeptunPage() {
 
 
 
-                    <div className="border border-slate-800 p-4 px-6 flex items-center gap-2 rounded-lg justify-between">
-                        <div className="flex items-center gap-3">
+                    <div className="border border-slate-800 p-4 px-6 flex lg:flex-row flex-col items-center lg:justify-between justify-center rounded-lg gap-3">
+                        <div className="flex items-center gap-3 ">
                             <span className="text-sm text-slate-300">Összesen: 0 találat</span>
                         </div>
 
-                        <div className="flex items-center gap-3">
+                        <div className="flex items-center gap-3 ">
                             <span className="text-sm text-slate-300 border border-slate-600/50 p-3 px-6 rounded-lg">Kreditek: 0 találat</span>
                         </div>
 
@@ -258,7 +258,7 @@ export default function NeptunPage() {
                         </div>
                     </div>
 
-                    <div className="border border-slate-800 p-6 flex items-center gap-2 rounded-lg justify-between">
+                    <div className="border border-slate-800 p-4 px-6 flex lg:flex-row flex-col items-center lg:justify-between justify-center rounded-lg gap-3">
                         <div className="flex items-center gap-3">
                             <button onClick={handleDeleteSubjects} className="bg-red-500/80 text-white rounded-lg p-2 px-4 cursor-pointer hover:bg-red-500/50 flex items-center">
                                 <Icon.Reset size={20} className="inline-block mr-2" />
@@ -342,7 +342,7 @@ function SubjectCard({ id, name, type, kredit, requirementType, code, isOpen, se
                 <div className="w-2/3">
                     <h3 className="text-lg font-semibold">{name}</h3>
                 </div>
-                <div className="flex items-center justify-center gap-1 w-full">
+                <div className="lg:flex hidden items-center justify-center gap-1 w-full">
                     <span className="text-sm text-slate-400">{kredit} kredit</span>
                     <span className="h-1 w-1 bg-slate-600 rounded-full"></span>
                     <span className="text-sm text-slate-400">{requirementType}</span>
@@ -359,7 +359,7 @@ function SubjectCard({ id, name, type, kredit, requirementType, code, isOpen, se
                     <div className="mt-6 flex flex-col w-full gap-2">
                         {
                             [...new Set(subjectCourseDatas.map(item => item.type))].map((type) => (
-                                <div key={type} className="p-4 rounded-lg">
+                                <div key={type} className="lg:p-4 p-1 rounded-lg">
                                     <h4 className="text-lg font-semibold">{type}</h4>
                                     <div className="flex flex-col gap-2 mt-2">
                                         {

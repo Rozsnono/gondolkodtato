@@ -33,7 +33,7 @@ export default function RootLayout({
         <UserProvider>
           <QueryProvider>
             <Navbar></Navbar>
-            <section className="lg:mt-8 mt-6 lg:w-7xl w-full mx-auto">
+            <section className="lg:mt-8 mt-6 lg:w-7xl w-full mx-auto lg:p-0 p-4">
               {children}
             </section>
           </QueryProvider>

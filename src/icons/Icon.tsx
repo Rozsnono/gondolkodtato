@@ -11,7 +11,6 @@ interface IconProps {
 //Boxicons
 
 export const Icon = {
-
     Add: ({ size, className, onlyStrokes, strokeWidth, onClick }: IconProps) => (
         <IconWrapper size={size} className={className} onlyStrokes={onlyStrokes} strokeWidth={strokeWidth} onClick={onClick}>
             <path d="M12 4v16m-8-8h16"></path>
@@ -180,6 +179,11 @@ export const Icon = {
         <IconWrapper size={size} className={className} onlyStrokes={onlyStrokes} strokeWidth={strokeWidth} onClick={onClick}>
             <path d="m10.998 16 5-4-5-4v3h-9v2h9v3Z"></path>
             <path d="M12.999 3a8.938 8.938 0 0 0-6.364 2.637l1.414 1.414A6.955 6.955 0 0 1 12.999 5c1.87 0 3.628.729 4.95 2.051a6.955 6.955 0 0 1 2.05 4.95c0 1.87-.728 3.628-2.05 4.95a6.955 6.955 0 0 1-4.95 2.051 6.955 6.955 0 0 1-4.95-2.051l-1.414 1.414a8.938 8.938 0 0 0 6.364 2.637 8.938 8.938 0 0 0 6.364-2.637A8.938 8.938 0 0 0 22 12.001a8.938 8.938 0 0 0-2.637-6.364A8.938 8.938 0 0 0 12.999 3Z"></path>
+        </IconWrapper>
+    ),
+    Menu: ({ size, className, onlyStrokes, strokeWidth, onClick }: IconProps) => (
+        <IconWrapper size={size} className={className} onlyStrokes={onlyStrokes} strokeWidth={strokeWidth} onClick={onClick}>
+            <path d="M4 6h16v2H4V6Zm0 5h16v2H4v-2Zm0 5h16v2H4v-2Z"></path>
         </IconWrapper>
     ),
     Play: ({ size, className, onlyStrokes, strokeWidth, onClick }: IconProps) => (

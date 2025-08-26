@@ -8,6 +8,8 @@ import { useContext } from "react";
 
 export default function QuizPage() {
 
+
+
     const id = useParams()._id;
     const router = useRouter();
 
@@ -40,6 +42,10 @@ export default function QuizPage() {
         }
         const data = await res.json();
         router.push(`/quizzes/${id}/attempt/${data.resultId}`);
+    }
+
+    if (/Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)) {
+        return null;
     }
 
     return (

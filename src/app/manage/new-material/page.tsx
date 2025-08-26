@@ -45,7 +45,7 @@ export default function FileUpload() {
         <div className="flex flex-col gap-6" >
             <h1 className="text-4xl font-bold">Tananyag hozzáadása</h1>
 
-            <form onSubmit={handleSubmit} className="grid lg:grid-cols-2 grid-cols-1 lg:max-w-4xl w-full mx-auto gap-4 lg:p-6 p-2 border border-slate-600/30 rounded-lg">
+            <form onSubmit={handleSubmit} className="lg:grid lg:grid-cols-2 flex flex-col lg:max-w-4xl w-full mx-auto gap-4 lg:p-6 p-2 border border-slate-600/30 rounded-lg">
                 <TextInput label="Tananyag címe" placeholder="Írd be a tananyag címét..." className="lg:col-span-2" id="material-title" />
                 <TextInput label="Kategória" placeholder="Írd be a tananyag kategóriáját..." id="material-category" />
                 <TextInput label="Tananyag külső URL (opcionális)" placeholder="Írd be a tananyag külső URL-jét..." className="" id="material-link" />
