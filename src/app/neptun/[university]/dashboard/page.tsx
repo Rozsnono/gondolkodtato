@@ -3,13 +3,15 @@ import Loading from "@/app/loading";
 import { Icon } from "@/icons/Icon";
 import { deleteToken, UserContext } from "@/services/user.context";
 import { useQuery } from "@tanstack/react-query";
-import { useRouter } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import { useContext, useEffect, useRef, useState } from "react";
 
 export default function NeptunPage() {
 
     const { neptun, setNeptun, setSavedSubjects, savedSubjects } = useContext(UserContext);
     const router = useRouter();
+
+    const university = useParams().university;
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const formRef = useRef<any>({
@@ -48,7 +50,7 @@ export default function NeptunPage() {
     const { data, isLoading, isError, error: serviceError, refetch } = useQuery({
         queryKey: ['neptun-sze-filters'],
         queryFn: async () => {
-            const res = await fetch('/api/neptun/sze', {
+            const res = await fetch('/api/neptun/'+university, {
                 headers: {
                     'Authorization': `Bearer ${neptun?.token}`
                 }
@@ -61,7 +63,7 @@ export default function NeptunPage() {
     });
 
     async function getSubjects() {
-        const res = await fetch(`/api/neptun/sze/subjects?termId=${formRef.current.termId}&subjectType=${formRef.current.subjectType}&curriculumId=${formRef.current.curriculum}&subjectGroupId=${formRef.current.subjectGroup}&title=${formRef.current.name}&from=${formRef.current.from}&to=${formRef.current.to}`, {
+        const res = await fetch(`/api/neptun/${university}/subjects?termId=${formRef.current.termId}&subjectType=${formRef.current.subjectType}&curriculumId=${formRef.current.curriculum}&subjectGroupId=${formRef.current.subjectGroup}&title=${formRef.current.name}&from=${formRef.current.from}&to=${formRef.current.to}`, {
             headers: {
                 'Authorization': `Bearer ${neptun?.token}`
             }
@@ -133,7 +135,7 @@ export default function NeptunPage() {
 
     async function loadSavedSubjects() {
         if (savedSubjects.length === 0) return;
-        const res = await fetch(`/api/neptun/sze/subjects/course?termId=${formRef.current.termId}&subjectType=${formRef.current.subjectType}&curriculumId=${formRef.current.curriculum}&subjectGroupId=${formRef.current.subjectGroup}`, {
+        const res = await fetch(`/api/neptun/${university}/subjects/course?termId=${formRef.current.termId}&subjectType=${formRef.current.subjectType}&curriculumId=${formRef.current.curriculum}&subjectGroupId=${formRef.current.subjectGroup}`, {
             headers: {
                 'Authorization': `Bearer ${neptun?.token}`
             },
@@ -146,7 +148,7 @@ export default function NeptunPage() {
     }
 
     async function handleSubjectSign() {
-        const res = await fetch(`/api/neptun/sze/subjects/signin`, {
+        const res = await fetch(`/api/neptun/${university}/subjects/signin`, {
             headers: {
                 'Authorization': `Bearer ${neptun?.token}`
             },
