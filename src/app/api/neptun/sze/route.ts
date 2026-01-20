@@ -53,11 +53,11 @@ export async function GET(req: Request) {
         )
         const curriculumData = await curriculum.json();
 
-        if (!curriculumData || !curriculumData.data) {
+        if (!curriculumData || !curriculumData.data || curriculumData.data.length === 0) {
             return NextResponse.json({ error: 'Nincs elérhető adat' }, { status: 404, headers: headers });
         }
 
-        const curriculumId = new URL(req.url).searchParams.get('curriculumId') || (curriculumData.data[0]).value;
+        const curriculumId = new URL(req.url).searchParams.get('curriculumId') || curriculumData.data[0].value;
         const subjectGroup = await fetch(`https://neptun-hweb.sze.hu/hallgato_ng/api/SubjectApplication/SubjectGroup?subjectType=1&termId=${termId}&curriculumIds%5B0%5D=${curriculumId}`,
             {
                 method: 'GET',
