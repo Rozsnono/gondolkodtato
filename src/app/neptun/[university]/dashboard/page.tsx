@@ -29,6 +29,7 @@ export default function NeptunPage() {
     const [subjectIsOpen, setSubjectIsOpen] = useState(null);
     const [time, setTime] = useState(10000);
     const [logs, setLogs] = useState<any[]>([]);
+    const [ searchIsLoading, setSearchIsLoading ] = useState(false);
 
     useEffect(() => {
         if (neptun && !neptun.token) {
@@ -74,6 +75,7 @@ export default function NeptunPage() {
         const data = await res.json();
         setSubjects(data.subjectData.data);
         setLogs([...logs, { time: new Date().toLocaleTimeString('hu-HU'), message: `${data.subjectData.data.length} tárgy betöltve ` }]);
+        setSearchIsLoading(false);
     }
 
     if (isLoading) return <Loading />;
@@ -85,6 +87,7 @@ export default function NeptunPage() {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     function handleFilterSubmit(event: any) {
         event.preventDefault();
+        setSearchIsLoading(true);
 
         formRef.current = {
             ...formRef.current,
@@ -175,6 +178,12 @@ export default function NeptunPage() {
     return (
 
         <main className="flex flex-col gap-4">
+
+            {
+                searchIsLoading &&
+                <Loading></Loading>
+            }
+
             <div className="flex justify-between items-center">
                 <h1 className="text-2xl font-bold">SZE Neptun</h1>
                 <div onClick={() => { setNeptun(null); deleteToken('neptun'); router.replace('/neptun'); }} className="flex items-center gap-1 text-slate-300 group relative cursor-pointer hover:ring hover:ring-slate-400/20 hover:bg-slate-200/10 p-2 rounded-lg">

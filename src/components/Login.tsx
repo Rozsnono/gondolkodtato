@@ -45,10 +45,11 @@ export default function Login({ onClose }: { onClose: () => void }) {
 function LoginForm({ changeForm }: { changeForm: (form: 'login' | 'register') => void }) {
 
     const { setUser } = useContext(UserContext);
+    const [ isSubmitting, setIsSubmitting ] = useState(false);
 
     async function handleSubmit(event: any) {
         event.preventDefault();
-
+        setIsSubmitting(true);
         const formData = {
             name: event.target.name.value,
             password: event.target.password.value,
@@ -69,9 +70,11 @@ function LoginForm({ changeForm }: { changeForm: (form: 'login' | 'register') =>
             console.log('Login successful:', data);
             setUser(data.player);
             alert('Sikeres belépés!');
+            setIsSubmitting(false);
             location.reload();
         } else {
             console.error('Login failed:', data);
+            setIsSubmitting(false);
         }
     }
 
@@ -85,7 +88,7 @@ function LoginForm({ changeForm }: { changeForm: (form: 'login' | 'register') =>
                 <label htmlFor="password" className="block text-sm font-medium text-slate-100">Jelszó</label>
                 <input type="password" id="password" className="mt-1 block w-full rounded-md border border-slate-400 bg-slate-800 p-2 text-slate-100" />
             </div>
-            <button type="submit" className="w-full rounded-md bg-slate-400 p-2 text-slate-900 hover:bg-slate-300 cursor-pointer">Bejelentkezés</button>
+            <button type="submit" disabled={isSubmitting} className="w-full rounded-md bg-slate-400 p-2 text-slate-900 hover:bg-slate-300 cursor-pointer">Bejelentkezés</button>
 
             <div className="mt-4">
                 <p className="text-sm text-slate-400">Nincs fiókja? <a href="#" onClick={() => changeForm('register')} className="text-slate-100 hover:underline">Regisztráljon</a></p>
