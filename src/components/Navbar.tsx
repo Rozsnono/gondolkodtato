@@ -56,17 +56,21 @@ export default function Navbar() {
                                         <span>Tananyagok
                                         </span>
                                     </Link>
-                                    <Link href="/neptun" className={`justify-center whitespace-nowrap rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 h-9 px-4 py-2 flex items-center space-x-2 cursor-pointer ${isActive("/neptun")}`}>
-                                        <Icon.DegreeHat size={18} onlyStrokes strokeWidth={2} />
-                                        <span>Neptun
-                                        </span>
-                                    </Link>
                                     <Link href="/manage/quiz" className={`justify-center whitespace-nowrap rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 h-9 px-4 py-2 flex items-center space-x-2 cursor-pointer ${isActive("/manage")}`}>
                                         <Icon.Settings size={18} />
                                         <span>Adminisztráció
                                         </span>
                                     </Link>
                                 </React.Fragment>
+                            }
+
+                            {
+                                !user &&
+                                <Link href="/neptun" className={`justify-center whitespace-nowrap rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 h-9 px-4 py-2 flex items-center space-x-2 cursor-pointer ${isActive("/neptun")}`}>
+                                    <Icon.DegreeHat size={18} onlyStrokes strokeWidth={2} />
+                                    <span>Neptun
+                                    </span>
+                                </Link>
                             }
                         </div>
                     </div>
