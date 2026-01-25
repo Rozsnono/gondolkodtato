@@ -43,7 +43,7 @@ export async function POST(req: Request) {
                 
                 const res = await response.json();
                 if (!response.ok) {
-                    return { error: response.status, message: res.notification[0].description };
+                    return { error: response.status, message: res.notification[0].description, item: item };
                 }
 
 
