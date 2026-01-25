@@ -23,6 +23,41 @@ export default function Navbar() {
     const [isLoginOpen, setIsLoginOpen] = useState(false);
     const [isNavOpen, setIsNavOpen] = useState(false);
 
+    if (path.includes('neptun')) {
+        return (
+            <React.Fragment>
+                <nav className="backdrop-blur-md border-b border-slate-500/30 px-4 py-3 z-50">
+                    <div className="max-w-7xl mx-auto flex items-center justify-between">
+
+                        <div className="flex items-center justify-between space-x-4 w-full">
+
+                            <div className="flex items-center space-x-2">
+                                <Icon.Brain size={36} className="text-slate-400" />
+
+                                <span className="text-2xl font-bold text-slate-100">Gondolkodtató
+                                </span>
+                            </div>
+
+                            <div className="hidden md:flex items-center space-x-6 ml-10">
+                                <Link href="/" className={`justify-center whitespace-nowrap rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 h-9 px-4 py-2 flex items-center space-x-2 cursor-pointer ${isActive("/")}`}>
+                                    <Icon.Home size={18} />
+                                    <span>Főoldal
+                                    </span>
+                                </Link>
+                                <Link href="/neptun" className={`justify-center whitespace-nowrap rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 h-9 px-4 py-2 flex items-center space-x-2 cursor-pointer ${isActive("/neptun")}`}>
+                                    <Icon.DegreeHat size={18} onlyStrokes strokeWidth={2} />
+                                    <span>Neptun
+                                    </span>
+                                </Link>
+                            </div>
+
+                        </div>
+                    </div>
+                </nav>
+            </React.Fragment>
+        )
+    }
+
     return (
 
         <React.Fragment>

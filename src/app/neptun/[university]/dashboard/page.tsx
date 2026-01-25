@@ -29,13 +29,14 @@ export default function NeptunPage() {
     const [subjectIsOpen, setSubjectIsOpen] = useState(null);
     const [time, setTime] = useState(10000);
     const [logs, setLogs] = useState<any[]>([]);
-    const [ searchIsLoading, setSearchIsLoading ] = useState(false);
+    const [searchIsLoading, setSearchIsLoading] = useState(false);
+    const [loadIsLoading, setLoadIsLoading] = useState(false);
+    const [signIsLoading, setSignIsLoading] = useState(false);
 
     useEffect(() => {
         if (neptun && !neptun.token) {
             router.push('/neptun');
         }
-        console.log(neptun)
     }, [neptun]);
 
     useEffect(() => {
@@ -46,12 +47,12 @@ export default function NeptunPage() {
         }, 1000);
 
         return () => clearInterval(interval);
-    }, []);
+    }, [neptun]);
 
     const { data, isLoading, isError, error: serviceError, refetch } = useQuery({
         queryKey: ['neptun-sze-filters'],
         queryFn: async () => {
-            const res = await fetch('/api/neptun/'+university, {
+            const res = await fetch('/api/neptun/' + university, {
                 headers: {
                     'Authorization': `Bearer ${neptun?.token}`
                 }
@@ -74,7 +75,7 @@ export default function NeptunPage() {
         }
         const data = await res.json();
         setSubjects(data.subjectData.data);
-        setLogs([...logs, { time: new Date().toLocaleTimeString('hu-HU'), message: `${data.subjectData.data.length} tárgy betöltve ` }]);
+        setLogs([...logs, { time: new Date().toLocaleTimeString('hu-HU'), message: `✔️ ${data.subjectData.data.length} tárgy betöltve ` }]);
         setSearchIsLoading(false);
     }
 
@@ -88,8 +89,6 @@ export default function NeptunPage() {
     function handleFilterSubmit(event: any) {
         event.preventDefault();
         setSearchIsLoading(true);
-
-        console.log('Filter submitted', event.target['subjectGroup'], event.target['subjectGroup'].value);
 
         formRef.current = {
             ...formRef.current,
@@ -128,19 +127,20 @@ export default function NeptunPage() {
                 setPlannedSubjects([...tmpArray, { ...tmp, courseIds: [...tmp.courseIds, { id: course.id, code: course.code }] }]);
             }
         } else {
-            setPlannedSubjects([...plannedSubjects, { subjectId: subject.id, curriculumTemplateId: subject.curriculumTemplateId, curriculumTemplateLineId: subject.curriculumTemplateLineId, termId: subject.termId, code: subject.code, courseIds: [{ id: course.id, code: course.code }] }]);
+            setPlannedSubjects([...plannedSubjects, { subjectId: subject.id, curriculumTemplateId: subject.curriculumTemplateId, curriculumTemplateLineId: subject.curriculumTemplateLineId, termId: subject.termId, code: subject.code, courseIds: [{ id: course.id, code: course.code }], credits: subject.credit }]);
         }
-        setLogs([...logs, { time: new Date().toLocaleTimeString('hu-HU'), message: `${plannedSubjects.find(s => s.subjectId === subject.id) && plannedSubjects.find(s => s.subjectId === subject.id).courseIds.find((c: any) => c.id === course.id) ? 'Eltávolítva' : 'Hozzáadva'} a ${subject.code} tárgyhoz a ${course.type} kurzus (${course.id})` }]);
+        setLogs([...logs, { time: new Date().toLocaleTimeString('hu-HU'), message: `🎓 ${plannedSubjects.find(s => s.subjectId === subject.id) && plannedSubjects.find(s => s.subjectId === subject.id).courseIds.find((c: any) => c.id === course.id) ? 'Eltávolítva' : 'Hozzáadva'} a ${subject.code} tárgyhoz a ${course.type} kurzus (${course.id})` }]);
     }
 
     function savePlannedSubjects() {
         const savedSubject = plannedSubjects.map(s => ({ subject: s.code, courses: s.courseIds.map((c: any) => c.code) }));
         setSavedSubjects(savedSubject);
-        setLogs([...logs, { time: new Date().toLocaleTimeString('hu-HU'), message: `Tárgyak mentve: ${savedSubject.map(s => s.subject).join(', ')}` }]);
+        setLogs([...logs, { time: new Date().toLocaleTimeString('hu-HU'), message: `💾 Tárgyak mentve: ${savedSubject.map(s => s.subject).join(', ')}` }]);
     }
 
     async function loadSavedSubjects() {
         if (savedSubjects.length === 0) return;
+        setLoadIsLoading(true);
         const res = await fetch(`/api/neptun/${university}/subjects/course?termId=${formRef.current.termId}&subjectType=${formRef.current.subjectType}&curriculumId=${formRef.current.curriculum}&subjectGroupId=${formRef.current.subjectGroup}`, {
             headers: {
                 'Authorization': `Bearer ${neptun?.token}`
@@ -149,11 +149,17 @@ export default function NeptunPage() {
             body: JSON.stringify(savedSubjects)
         });
         const data = await res.json();
-        setPlannedSubjects(data.results);
-        setLogs([...logs, { time: new Date().toLocaleTimeString('hu-HU'), message: `Tárgyak betöltve: ${data.results.map((s: any) => s.code).join(', ')}` }]);
+        setPlannedSubjects(data.results || []);
+        setLoadIsLoading(false);
+        if (data.error || data.results.length === 0) {
+            setLogs([...logs, { time: new Date().toLocaleTimeString('hu-HU'), message: `❌ Nincsenek elérhető tárgyak a mentett tárgyak közül` }]);
+        } else {
+            setLogs([...logs, { time: new Date().toLocaleTimeString('hu-HU'), message: `✔️ Tárgyak betöltve: ${data.results.map((s: any) => s.code).join(', ')}` }]);
+        }
     }
 
     async function handleSubjectSign() {
+        setSignIsLoading(true);
         const res = await fetch(`/api/neptun/${university}/subjects/signin`, {
             headers: {
                 'Authorization': `Bearer ${neptun?.token}`
@@ -162,12 +168,17 @@ export default function NeptunPage() {
             body: JSON.stringify(plannedSubjects)
         });
         const data = await res.json();
+        setSignIsLoading(false);
 
         if (res.status === 200) {
-            // Handle successful sign-in
+            setLogs([...logs, { time: new Date().toLocaleTimeString('hu-HU'), message: `Jelentkezés: ✔️ Sikeres jelentkezés` }]);
         } else {
+            if (data.error || data.results.length === 0) {
+                setLogs([...logs, { time: new Date().toLocaleTimeString('hu-HU'), message: `Jelentkezés: ❌ Hiba történt a jelentkezés során` }]);
+                return;
+            }
             data.results.forEach((result: any) => {
-                setLogs([...logs, { time: new Date().toLocaleTimeString('hu-HU'), message: `Jelentkezés: ${result.error}:${result.message}` }]);
+                setLogs([...logs, { time: new Date().toLocaleTimeString('hu-HU'), message: `Jelentkezés: ❌ ${result.error}:${result.message}:${result.item.subjectId || null}` }]);
             })
         }
     }
@@ -175,7 +186,11 @@ export default function NeptunPage() {
     async function handleDeleteSubjects() {
         setPlannedSubjects([]);
         setSavedSubjects([]);
-        setLogs([...logs, { time: new Date().toLocaleTimeString('hu-HU'), message: `Tárgyak törölve` }]);
+        setLogs([...logs, { time: new Date().toLocaleTimeString('hu-HU'), message: `🗑️ Tárgyak törölve` }]);
+    }
+
+    function getCredits() {
+        return plannedSubjects.reduce((total, subject) => total + (subject.credits || 0), 0);
     }
 
     return (
@@ -191,7 +206,8 @@ export default function NeptunPage() {
                 <h1 className="text-2xl font-bold">SZE Neptun</h1>
                 <div onClick={() => { setNeptun(null); deleteToken('neptun'); router.replace('/neptun'); }} className="flex items-center gap-1 text-slate-300 group relative cursor-pointer hover:ring hover:ring-slate-400/20 hover:bg-slate-200/10 p-2 rounded-lg">
                     {neptun && neptun.loggedIn &&
-                        new Date(neptun.loggedIn).toLocaleTimeString('hu-HU')
+                        new Date(time).getUTCMinutes().toString().padStart(2, '0') + ':' +
+                        new Date(time).getUTCSeconds().toString().padStart(2, '0')
                     }
                     <Icon.Authorized size={24} />
                     <span className="text-sm opacity-100 group-hover:opacity-0 duration-200">Bejelentkezve</span>
@@ -230,47 +246,7 @@ export default function NeptunPage() {
 
 
 
-                    <div className="border border-slate-800 p-4 px-6 flex lg:flex-row flex-col items-center lg:justify-between justify-center rounded-lg gap-3">
-                        <div className="flex items-center gap-3 ">
-                            <span className="text-sm text-slate-300">Összesen: 0 találat</span>
-                        </div>
 
-                        <div className="flex items-center gap-3 ">
-                            <span className="text-sm text-slate-300 border border-slate-600/50 p-3 px-6 rounded-lg">Kreditek: 0 találat</span>
-                        </div>
-
-                        <div className="flex items-center gap-3">
-                            <button onClick={handleSubjectSign} className="bg-purple-500/80 text-white rounded-lg p-2 px-4 cursor-pointer hover:bg-purple-500/50 flex items-center">
-                                <Icon.LogIn size={20} className="inline-block mr-2" />
-                                <span>Jelentkezés</span>
-                            </button>
-                            <button className="bg-orange-500/80 text-white rounded-lg p-2 px-4 cursor-pointer hover:bg-orange-500/50 flex items-center">
-                                <Icon.Book size={20} className="inline-block mr-2" />
-                                <span>Tematikák</span>
-                            </button>
-                        </div>
-                    </div>
-
-                    <div className="border border-slate-800 p-6 flex flex-col gap-2 rounded-lg">
-                        <h2 className="text-lg font-semibold flex items-center">
-                            <Icon.Book size={20} className="inline-block mr-2" />
-                            Elérhető tárgyak
-                        </h2>
-
-                        <div className="flex flex-col w-full gap-2">
-                            {subjects.map((subject) => (
-                                <SubjectCard courseChecked={(plannedSubjects.find(c => c.subjectId === subject.id) || { courseIds: [] })?.courseIds} onCourseCheck={(c) => { handleSubjectClick(subject, c) }} isOpen={subjectIsOpen} setIsOpen={(e) => { setSubjectIsOpen(e) }} key={subject.id} id={subject.id} name={subject.title} type={subject.type} kredit={subject.credit} requirementType={subject.requirementType} code={subject.code} termId={subject.termId} curriculumId={subject.curriculumTemplateId} curriculumLineId={subject.curriculumTemplateLineId} />
-                            ))}
-
-                        </div>
-
-                        <div className="flex items-center gap-3 mx-auto">
-                            <button onClick={handleLoadMore} className="bg-blue-500/80 text-white rounded-lg p-2 px-4 cursor-pointer hover:bg-blue-500/50 flex items-center">
-                                <Icon.Load size={20} className="inline-block mr-2" />
-                                <span>Továbbiak betöltése</span>
-                            </button>
-                        </div>
-                    </div>
 
                     <div className="border border-slate-800 p-4 px-6 flex lg:flex-row flex-col items-center lg:justify-between justify-center rounded-lg gap-3">
                         <div className="flex items-center gap-3">
@@ -285,12 +261,78 @@ export default function NeptunPage() {
                                 <Icon.Upload size={20} className="inline-block mr-2" onlyStrokes strokeWidth={2} />
                                 <span>Mentés</span>
                             </button>
-                            <button onClick={() => loadSavedSubjects()} className="bg-sky-500/80 text-white rounded-lg p-2 px-4 cursor-pointer hover:bg-sky-500/50 flex items-center">
-                                <Icon.Download size={20} className="inline-block mr-2" onlyStrokes strokeWidth={2} />
+                            <button disabled={loadIsLoading} onClick={() => loadSavedSubjects()} className="bg-sky-500/80 text-white rounded-lg p-2 px-4 cursor-pointer hover:bg-sky-500/50 flex items-center">
+                                {
+                                    loadIsLoading ? <Icon.Loader size={20} className="inline-block mr-2 animate-spin" /> :
+                                        <Icon.Download size={20} className="inline-block mr-2" onlyStrokes strokeWidth={2} />
+                                }
                                 <span>Betöltés</span>
                             </button>
                         </div>
+
+                        <div className="flex items-center gap-3">
+                            <button onClick={handleSubjectSign} className="bg-purple-500/80 text-white rounded-lg p-2 px-4 cursor-pointer hover:bg-purple-500/50 flex items-center">
+                                {
+                                    signIsLoading ? <>
+                                        <Icon.Loader size={20} className="inline-block mr-2 animate-spin" />
+                                        <span>Feldolgozás...</span>
+                                    </> :
+                                        <>
+                                            <Icon.LogIn size={20} className="inline-block mr-2" />
+                                            <span>Jelentkezés</span>
+                                        </>
+
+                                }
+                            </button>
+                            {/* <button className="bg-orange-500/80 text-white rounded-lg p-2 px-4 cursor-pointer hover:bg-orange-500/50 flex items-center">
+                                <Icon.Book size={20} className="inline-block mr-2" />
+                                <span>Tematikák</span>
+                            </button> */}
+                        </div>
                     </div>
+
+                    <div className="border border-slate-800 p-6 flex flex-col gap-2 rounded-lg">
+                        <h2 className="text-lg font-semibold flex items-center">
+                            <Icon.Book size={20} className="inline-block mr-2" />
+                            Elérhető tárgyak
+                        </h2>
+
+                        <div className="flex flex-col w-full gap-2">
+                            {subjects.map((subject) => (
+                                <SubjectCard courseChecked={(plannedSubjects.find(c => c.subjectId === subject.id) || { courseIds: [] })?.courseIds} onCourseCheck={(c) => { handleSubjectClick(subject, c) }} isOpen={subjectIsOpen} setIsOpen={(e) => { setSubjectIsOpen(e) }} key={subject.id} id={subject.id} name={subject.title} type={subject.type} kredit={subject.credit} requirementType={subject.requirementType} code={subject.code} termId={subject.termId} curriculumId={subject.curriculumTemplateId} curriculumLineId={subject.curriculumTemplateLineId} />
+                            ))}
+                        </div>
+
+                        {
+                            subjects.length === 0 &&
+                            <div className="flex flex-col w-full gap-2">
+                                <span className="text-sm text-slate-300">Nincsenek elérhető tárgyak. Kérlek használja a szűrőket a kereséshez.</span>
+                            </div>
+                        }
+
+                        <div className="flex items-center gap-3 mx-auto">
+                            {
+                                subjects.length >= formRef.current.to &&
+                                <button onClick={handleLoadMore} className="bg-blue-500/80 text-white rounded-lg p-2 px-4 cursor-pointer hover:bg-blue-500/50 flex items-center">
+                                    <Icon.Load size={20} className="inline-block mr-2" />
+                                    <span>Továbbiak betöltése</span>
+                                </button>
+                            }
+                        </div>
+                    </div>
+
+                    <div className="border border-slate-800 p-4 px-6 flex lg:flex-row flex-col items-center lg:justify-between justify-center rounded-lg gap-3">
+                        <div className="flex items-center gap-3 ">
+                            <span className="text-sm text-slate-300">Összesen: {subjects.length || 0} találat</span>
+                        </div>
+
+                        <div className="flex items-center gap-3 ">
+                            <span className="text-sm text-slate-300 border border-slate-600/50 p-3 px-6 rounded-lg">Kreditek: {getCredits() || 0} találat</span>
+                        </div>
+
+
+                    </div>
+
                 </div>
 
                 <div className="grid grid-cols-1 gap-4 min-w-80">
@@ -303,7 +345,7 @@ export default function NeptunPage() {
                         <div className="flex flex-col gap-2 bg-slate-800/50 p-3 rounded-lg h-full overflow-y-auto">
                             {
                                 logs.map((log, index) => (
-                                    <span className="text-sm text-slate-300" key={index}>{log.time} | {log.message}</span>
+                                    <span className="text-sm text-slate-300" key={index}><span className="text-slate-500">{log.time} |</span> {log.message}</span>
                                 ))
                             }
                             {
@@ -362,7 +404,6 @@ function SubjectCard({ id, name, type, kredit, requirementType, code, isOpen, se
                     <span className="text-sm text-slate-400">{requirementType}</span>
                     <span className="h-1 w-1 bg-slate-600 rounded-full"></span>
                     <span className="text-sm text-slate-400">{code}</span>
-                    <span className="h-1 w-1 bg-slate-600 rounded-full"></span>
                 </div>
                 <div className="" >
                     <Icon.Chevron.Down size={24} className={`cursor-pointer ${isOpen === id ? 'rotate-180' : ''} duration-200`} onClick={getSubjectCourseDatas} />
@@ -373,7 +414,7 @@ function SubjectCard({ id, name, type, kredit, requirementType, code, isOpen, se
                     <div className="mt-6 flex flex-col w-full gap-2">
                         {
                             [...new Set(subjectCourseDatas.map(item => item.type))].map((type) => (
-                                <div key={type} className="lg:p-4 p-1 rounded-lg">
+                                <div key={type} className="lg:p-1 p-1 rounded-lg">
                                     <h4 className="text-lg font-semibold">{type}</h4>
                                     <div className="flex flex-col gap-2 mt-2">
                                         {
