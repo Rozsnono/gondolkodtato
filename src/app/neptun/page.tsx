@@ -103,7 +103,10 @@ export default function NeptunPage() {
                             </p>
                         )
                     }
-                    <button disabled={state.isLoading} type="submit" className="w-full rounded-md bg-slate-400 p-2 text-slate-900 hover:bg-slate-300 cursor-pointer mt-6">Bejelentkezés</button>
+                    <button disabled={state.isLoading} type="submit" className="w-full rounded-md bg-slate-400 p-2 text-slate-900 hover:bg-slate-300 cursor-pointer mt-6 flex justify-center items-center gap-2">
+                        {state.isLoading && <Icon.Loader size={20} className="animate-spin"/>}
+                        Bejelentkezés
+                        </button>
                 </form>
             </div>
         </main>

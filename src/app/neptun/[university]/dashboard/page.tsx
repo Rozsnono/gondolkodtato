@@ -64,7 +64,7 @@ export default function NeptunPage() {
     });
 
     async function getSubjects() {
-        const res = await fetch(`/api/neptun/${university}/subjects?termId=${formRef.current.termId}&subjectType=${formRef.current.subjectType}&curriculumId=${formRef.current.curriculum}&subjectGroupId=${formRef.current.subjectGroup}&title=${formRef.current.name}&from=${formRef.current.from}&to=${formRef.current.to}`, {
+        const res = await fetch(`/api/neptun/${university}/subjects?termId=${formRef.current.termId}&subjectType=${formRef.current.subjectType}&curriculumId=${formRef.current.curriculum}&subjectGroupId=${formRef.current.subjectGroupId}&subjectGroupDisplayText=${formRef.current.subjectGroupDisplayText}&title=${formRef.current.name}&from=${formRef.current.from}&to=${formRef.current.to}`, {
             headers: {
                 'Authorization': `Bearer ${neptun?.token}`
             }
@@ -89,12 +89,15 @@ export default function NeptunPage() {
         event.preventDefault();
         setSearchIsLoading(true);
 
+        console.log('Filter submitted', event.target['subjectGroup'], event.target['subjectGroup'].value);
+
         formRef.current = {
             ...formRef.current,
             termId: event.target['term'].value,
             subjectType: event.target['subjectType'].value,
             curriculum: event.target['curriculum'].value,
-            subjectGroup: event.target['subjectGroup'].value,
+            subjectGroupId: event.target['subjectGroup'].value === '0000' ? null : event.target['subjectGroup'].value,
+            subjectGroupDisplayText: event.target['subjectGroup'].options[event.target['subjectGroup'].selectedIndex].text,
             name: event.target['name'].value,
         }
 
@@ -214,7 +217,7 @@ export default function NeptunPage() {
                             />
                             <SelectInput
                                 id="subjectGroup"
-                                options={data.subjectGroupData.data.map((i: any) => { return { id: i.id, text: i.displayText } })}
+                                options={data.subjectGroupData.data.map((i: any) => { return { value: i.id || '0000', text: i.displayText } })}
                             />
                             <input type="text" id="name" placeholder="Tárgykód/név" className="bg-slate-900 border border-slate-600 rounded-lg p-2 w-full" />
                             <button type="submit" className="bg-slate-100/50 text-white rounded-lg p-2 cursor-pointer hover:bg-slate-100/30 flex items-center">

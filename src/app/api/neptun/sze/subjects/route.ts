@@ -20,15 +20,16 @@ export async function GET(req: Request) {
         const subjectType = new URL(req.url).searchParams.get('subjectType');
         const curriculumId = new URL(req.url).searchParams.get('curriculumId');
         const subjectGroupId = new URL(req.url).searchParams.get('subjectGroupId');
+        const subjectGroupDisplayText = new URL(req.url).searchParams.get('subjectGroupDisplayText');
         const title = new URL(req.url).searchParams.get('title');
         const from = new URL(req.url).searchParams.get('from');
         const to = new URL(req.url).searchParams.get('to');
 
 
-        if (!termId || !subjectType || !curriculumId || !subjectGroupId || !from || !to) {
+        if (!termId || !subjectType || !curriculumId || !from || !to) {
             return NextResponse.json({ error: 'Hiányzó kötelező paraméterek' }, { status: 400, headers: headers });
         }
-        const subjects = await fetch(`https://neptun-hweb.sze.hu/hallgato_ng/api/SubjectApplication/SchedulableSubjects?request.termId=${termId}&request.subjectType=${subjectType}&request.hasRegisteredSubjects=true&request.hasScheduledSubjects=true&request.curriculumTemplateId=${curriculumId}&request.subjectGroupId=${subjectGroupId}&sortAndPage.firstRow=${from}&sortAndPage.lastRow=${to}&sortAndPage.title=asc${title ? `&request.title=${title}` : ''}`,
+        const subjects = await fetch(`https://neptun-hweb.sze.hu/hallgato_ng/api/SubjectApplication/SchedulableSubjects?request.termId=${termId}&request.subjectType=${subjectType}&request.hasRegisteredSubjects=true&request.hasScheduledSubjects=true&request.curriculumTemplateId=${curriculumId}${subjectGroupId?.toString() !== 'null' ? `&request.subjectGroup.id=${subjectGroupId}&request.subjectGroup.displayText=${subjectGroupDisplayText}` : ''}&sortAndPage.firstRow=${from}&sortAndPage.lastRow=${to}&sortAndPage.title=asc${title ? `&request.title=${title}` : ''}`,
             {
                 method: 'GET',
                 headers: {

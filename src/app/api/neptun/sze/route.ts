@@ -68,6 +68,7 @@ export async function GET(req: Request) {
         )
         const subjectGroupData = await subjectGroup.json();
 
+
         if (!subjectGroupData || !subjectGroupData.data) {
             return NextResponse.json({ error: 'Nincs elérhető adat' }, { status: 404, headers: headers });
         }
